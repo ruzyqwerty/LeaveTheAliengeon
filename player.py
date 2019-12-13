@@ -14,6 +14,8 @@ class Player:
         self.rect.x += x * width
         self.rect.y += y * height
 
+        self.speed = 3
+
     def load_image(self, width, height, colorkey):
         for name in NAMES:
             name = 'Resources/' + name
@@ -26,6 +28,16 @@ class Player:
             image = pygame.transform.scale(image, (width, height))
             self.images.append(image)
         self.image = self.images[0]
+
+    def player_control(self, keys):
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        elif keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+        if keys[pygame.K_UP]:
+            self.rect.y -= self.speed
+        elif keys[pygame.K_DOWN]:
+            self.rect.y += self.speed
 
     def render(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))

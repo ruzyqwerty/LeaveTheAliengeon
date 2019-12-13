@@ -13,6 +13,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    keys = pygame.key.get_pressed()
+    level.player.player_control(keys)
+
     level.render(screen)
     pygame.display.flip()
     clock.tick(FPS)
