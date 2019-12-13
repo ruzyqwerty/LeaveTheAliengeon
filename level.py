@@ -37,3 +37,18 @@ class Level:
     def render(self, surface):
         self.all_sprites.draw(surface)
         self.player.render(surface)
+
+    def check_collision(self):
+        for sprite in self.all_sprites:
+            if sprite.class_name == 'wall' and sprite.rect.colliderect(self.player.rect):
+                if sprite.rect.collidepoint(self.player.rect.midtop) and self.player.speed[1] < 0 \
+                        or sprite.rect.collidepoint(self.player.rect.midbottom) and self.player.speed[1] > 0:
+                    self.player.speed = self.player.speed[0], 0
+                if sprite.rect.collidepoint(self.player.rect.midleft) and self.player.speed[0] < 0 \
+                        or sprite.rect.collidepoint(self.player.rect.midright) and self.player.speed[0] > 0:
+                    self.player.speed = 0, self.player.speed[1]
+
+    def update(self):
+        self.player.normalize_speed()
+        self.check_collision()
+        self.player.update()

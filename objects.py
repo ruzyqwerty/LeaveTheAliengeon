@@ -11,6 +11,7 @@ class Object(pygame.sprite.Sprite):
         super().__init__()
         if height == 0:
             height = width
+        self.class_name = name
         self.image = None
         name = LEVEL_OBJECTS[name]
         name = 'Resources/' + name
