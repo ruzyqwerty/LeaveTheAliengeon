@@ -6,17 +6,18 @@ pygame.init()
 screen = pygame.display.set_mode((600, 400))
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
-level = Level("m1.txt")
+level = Level("m1.txt", screen)
 FPS = 60
 running = True
 while running:
+    screen.fill((255, 255, 255))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     level.update()
 
-    level.render(screen)
     pygame.display.flip()
     clock.tick(FPS)
 
