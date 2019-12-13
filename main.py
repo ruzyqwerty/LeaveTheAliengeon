@@ -1,7 +1,5 @@
 import pygame
 from level import Level
-from player import Player
-from objects import Object
 
 
 pygame.init()
