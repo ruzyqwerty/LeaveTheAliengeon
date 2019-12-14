@@ -3,6 +3,8 @@ from objects import Object
 from player import Player
 from random import randint
 
+ROOM_SIZE_CONST = 40
+
 
 class Level:
     def __init__(self, count, surface):
@@ -45,9 +47,9 @@ class Level:
             if width is not None:
                 self.rooms.append('fight_room')
                 if enter == 2:
-                    offset_x -= width * 25
+                    offset_x -= width * ROOM_SIZE_CONST
                 elif enter == 1:
-                    offset_y -= height * 25
+                    offset_y -= height * ROOM_SIZE_CONST
                 self.load_coridor(exit, width, height)
 
     def load_coridor(self, exit, width, height):
@@ -55,27 +57,27 @@ class Level:
         if exit == 2 or exit == 4:
             x = 0
             if exit == 2:
-                x += width * 25
+                x += width * ROOM_SIZE_CONST
             else:
-                x -= width // 2 * 25
-            y = (height // 2 - 2) * 25
+                x -= width // 2 * ROOM_SIZE_CONST
+            y = (height // 2 - 2) * ROOM_SIZE_CONST
             width, height = self.load_room('corridor_horizontal.txt', (offset_x + x, offset_y + y))
             if width is not None:
                 offset_x += x
                 if exit == 2:
-                    offset_x += width * 25
+                    offset_x += width * ROOM_SIZE_CONST
         elif exit == 1 or exit == 3:
             y = 0
             if exit == 1:
-                y -= height // 2 * 25
+                y -= height // 2 * ROOM_SIZE_CONST
             else:
-                y += height * 25
-            x = (width // 2 - 2) * 25
+                y += height * ROOM_SIZE_CONST
+            x = (width // 2 - 2) * ROOM_SIZE_CONST
             width, height = self.load_room('corridor_vertical.txt', (offset_x + x, offset_y + y))
             if width is not None:
                 offset_y += y
                 if exit == 3:
-                    offset_y += height * 25
+                    offset_y += height * ROOM_SIZE_CONST
         self.offset = offset_x, offset_y
 
     def load_room(self, name, offset, passage=None):
@@ -96,7 +98,7 @@ class Level:
                 elif enter == 3:
                     row = height - 1
                     col = width // 2
-                    offset = offset[0], offset[1] - height * 25
+                    offset = offset[0], offset[1] - height * ROOM_SIZE_CONST
                 room_map[row][col] = '.'
                 room_map[row][col - 1] = '.'
                 room_map[row][col + 1] = '.'
@@ -104,7 +106,7 @@ class Level:
                 if enter == 2:
                     row = height // 2
                     col = width - 1
-                    offset = offset[0] - width * 25, offset[1]
+                    offset = offset[0] - width * ROOM_SIZE_CONST, offset[1]
                 elif enter == 4:
                     row = height // 2
                     col = 0
@@ -135,12 +137,12 @@ class Level:
             for col in range(width):
                 obj = None
                 if room_map[row][col] == 'W':
-                    obj = Object('wall', col, row, 25, offset=offset)
+                    obj = Object('wall', col, row, ROOM_SIZE_CONST, offset=offset)
                 elif room_map[row][col] == '.':
-                    obj = Object('empty', col, row, 25, offset=offset)
+                    obj = Object('empty', col, row, ROOM_SIZE_CONST, offset=offset)
                 elif room_map[row][col] == 'P':
-                    obj = Object('empty', col, row, 25, offset=offset)
-                    self.player = Player(col, row, 25, offset=offset, colorkey=(0, 255, 0))
+                    obj = Object('empty', col, row, ROOM_SIZE_CONST, offset=offset)
+                    self.player = Player(col, row, ROOM_SIZE_CONST, offset=offset, colorkey=(0, 255, 0))
                 if obj is not None:
                     # self.all_sprites.add(obj)
                     new_sprites.add(obj)
@@ -168,8 +170,10 @@ class Level:
                     self.player.speed = 0, self.player.speed[1]
 
     def center_camera(self):
-        x = - (self.player.rect.x + self.player.rect.w // 2 - 300)
-        y = - (self.player.rect.y + self.player.rect.h // 2 - 200)
+        # x = - (self.player.rect.x + self.player.rect.w // 2 - 300)
+        # y = - (self.player.rect.y + self.player.rect.h // 2 - 200)
+        x = - (self.player.rect.x + self.player.rect.w // 2 - pygame.display.Info().current_w // 2)
+        y = - (self.player.rect.y + self.player.rect.h // 2 - pygame.display.Info().current_h // 2)
         for sprite in self.all_sprites:
             sprite.rect.x += x
             sprite.rect.y += y
