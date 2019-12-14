@@ -143,8 +143,6 @@ class Level:
                     # self.all_sprites.add(obj)
                     new_sprites.add(obj)
         collided = pygame.sprite.groupcollide(new_sprites, self.all_sprites, False, False)
-        print(len(collided))
-        # if len(collided) <= 5:
         if len(collided) <= 5:
             self.all_sprites.add(new_sprites)
             self.offset = offset
