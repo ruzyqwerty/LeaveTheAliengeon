@@ -4,15 +4,15 @@ NAMES = ['player_idle_1.png', 'player_idle_2.png']
 
 
 class Player:
-    def __init__(self, x, y, width, height=0, colorkey=None):
+    def __init__(self, x, y, width, height=0, offset=(0, 0), colorkey=None):
         if height == 0:
             height = width
         self.images = []
         self.image = None
         self.load_image(width, height, colorkey)
         self.rect = self.image.get_rect()
-        self.rect.x += x * width
-        self.rect.y += y * height
+        self.rect.x += x * width + offset[0]
+        self.rect.y += y * height + offset[1]
 
         self.speed = (0, 0)
         self.normal_speed = 3
