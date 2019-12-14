@@ -62,7 +62,7 @@ class Level:
             width, height = self.load_room('corridor_horizontal.txt', (offset_x + x, offset_y + y))
             offset_x += x
             if exit == 2:
-                offset_x += width * 25
+                offset_x += width * 25  # TODO bug crashing when game start
         elif exit == 1 or exit == 3:
             y = 0
             if exit == 1:
@@ -73,7 +73,7 @@ class Level:
             width, height = self.load_room('corridor_vertical.txt', (offset_x + x, offset_y + y))
             offset_y += y
             if exit == 3:
-                offset_y += height * 25
+                offset_y += height * 25  # TODO bug crashing when game start
         self.offset = offset_x, offset_y
 
     def load_room(self, name, offset, passage=None):
