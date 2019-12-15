@@ -1,6 +1,6 @@
 import pygame
 from level import Level
-from settings import WINDOW_SIZE, FULLSCREEN
+from settings import WINDOW_SIZE, FULLSCREEN, FPS
 
 
 pygame.init()
@@ -11,7 +11,6 @@ else:
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
 level = Level(10, screen)
-FPS = 60
 running = True
 while running:
     screen.fill((255, 255, 255))
