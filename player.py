@@ -1,6 +1,5 @@
 import pygame
-
-NAMES = ['player_idle_1.png', 'player_idle_2.png']
+from texture import NAMES
 
 
 class Player:
@@ -15,7 +14,7 @@ class Player:
         self.rect.y += y * height + offset[1]
 
         self.speed = (0, 0)
-        self.normal_speed = 3
+        self.normal_speed = 4
 
     def load_image(self, width, height, colorkey):
         for name in NAMES:

@@ -2,8 +2,7 @@ import pygame
 from objects import Object
 from player import Player
 from random import randint
-
-ROOM_SIZE_CONST = 40
+from settings import BLOCK_SIZE
 
 
 class Level:
@@ -47,9 +46,9 @@ class Level:
             if width is not None:
                 self.rooms.append('fight_room')
                 if enter == 2:
-                    offset_x -= width * ROOM_SIZE_CONST
+                    offset_x -= width * BLOCK_SIZE
                 elif enter == 1:
-                    offset_y -= height * ROOM_SIZE_CONST
+                    offset_y -= height * BLOCK_SIZE
                 self.load_coridor(exit, width, height)
 
     def load_coridor(self, exit, width, height):
@@ -57,27 +56,27 @@ class Level:
         if exit == 2 or exit == 4:
             x = 0
             if exit == 2:
-                x += width * ROOM_SIZE_CONST
+                x += width * BLOCK_SIZE
             else:
-                x -= width // 2 * ROOM_SIZE_CONST
-            y = (height // 2 - 2) * ROOM_SIZE_CONST
+                x -= width // 2 * BLOCK_SIZE
+            y = (height // 2 - 2) * BLOCK_SIZE
             width, height = self.load_room('corridor_horizontal.txt', (offset_x + x, offset_y + y))
             if width is not None:
                 offset_x += x
                 if exit == 2:
-                    offset_x += width * ROOM_SIZE_CONST
+                    offset_x += width * BLOCK_SIZE
         elif exit == 1 or exit == 3:
             y = 0
             if exit == 1:
-                y -= height // 2 * ROOM_SIZE_CONST
+                y -= height // 2 * BLOCK_SIZE
             else:
-                y += height * ROOM_SIZE_CONST
-            x = (width // 2 - 2) * ROOM_SIZE_CONST
+                y += height * BLOCK_SIZE
+            x = (width // 2 - 2) * BLOCK_SIZE
             width, height = self.load_room('corridor_vertical.txt', (offset_x + x, offset_y + y))
             if width is not None:
                 offset_y += y
                 if exit == 3:
-                    offset_y += height * ROOM_SIZE_CONST
+                    offset_y += height * BLOCK_SIZE
         self.offset = offset_x, offset_y
 
     def load_room(self, name, offset, passage=None):
@@ -98,7 +97,7 @@ class Level:
                 elif enter == 3:
                     row = height - 1
                     col = width // 2
-                    offset = offset[0], offset[1] - height * ROOM_SIZE_CONST
+                    offset = offset[0], offset[1] - height * BLOCK_SIZE
                 room_map[row][col] = '.'
                 room_map[row][col - 1] = '.'
                 room_map[row][col + 1] = '.'
@@ -106,7 +105,7 @@ class Level:
                 if enter == 2:
                     row = height // 2
                     col = width - 1
-                    offset = offset[0] - width * ROOM_SIZE_CONST, offset[1]
+                    offset = offset[0] - width * BLOCK_SIZE, offset[1]
                 elif enter == 4:
                     row = height // 2
                     col = 0
@@ -137,12 +136,12 @@ class Level:
             for col in range(width):
                 obj = None
                 if room_map[row][col] == 'W':
-                    obj = Object('wall', col, row, ROOM_SIZE_CONST, offset=offset)
+                    obj = Object('wall', col, row, BLOCK_SIZE, offset=offset)
                 elif room_map[row][col] == '.':
-                    obj = Object('empty', col, row, ROOM_SIZE_CONST, offset=offset)
+                    obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
                 elif room_map[row][col] == 'P':
-                    obj = Object('empty', col, row, ROOM_SIZE_CONST, offset=offset)
-                    self.player = Player(col, row, ROOM_SIZE_CONST, offset=offset, colorkey=(0, 255, 0))
+                    obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
+                    self.player = Player(col, row, BLOCK_SIZE, offset=offset, colorkey=(0, 255, 0))
                 if obj is not None:
                     # self.all_sprites.add(obj)
                     new_sprites.add(obj)

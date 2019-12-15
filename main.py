@@ -1,12 +1,13 @@
 import pygame
 from level import Level
-
-size = width, height = (600, 400)
+from settings import WINDOW_SIZE, FULLSCREEN
 
 
 pygame.init()
-# screen = pygame.display.set_mode(size)
-screen = pygame.display.set_mode(flags=pygame.FULLSCREEN | pygame.RESIZABLE)
+if FULLSCREEN:
+    screen = pygame.display.set_mode(flags=pygame.FULLSCREEN | pygame.RESIZABLE)
+else:
+    screen = pygame.display.set_mode(WINDOW_SIZE)
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
 level = Level(10, screen)
