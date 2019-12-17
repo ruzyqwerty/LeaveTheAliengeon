@@ -1,33 +1,19 @@
 import pygame
-from texture import NAMES
+from texture import PLAYER
 
 
 class Player:
     def __init__(self, x, y, width, height=0, offset=(0, 0), colorkey=None):
         if height == 0:
             height = width
-        self.images = []
-        self.image = None
-        self.load_image(width, height, colorkey)
+        self.images = PLAYER
+        self.image = self.images[0]
         self.rect = self.image.get_rect()
         self.rect.x += x * width + offset[0]
         self.rect.y += y * height + offset[1]
 
         self.speed = (0, 0)
-        self.normal_speed = 4
-
-    def load_image(self, width, height, colorkey):
-        for name in NAMES:
-            name = 'Resources/' + name
-            image = pygame.image.load(name).convert()
-
-            if colorkey is not None:
-                image.set_colorkey(colorkey)
-            else:
-                image = image.convert_alpha()
-            image = pygame.transform.scale(image, (width, height))
-            self.images.append(image)
-        self.image = self.images[0]
+        self.normal_speed = 5
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
