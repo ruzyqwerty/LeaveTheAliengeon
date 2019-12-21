@@ -11,7 +11,7 @@ from level import Level
 
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
-level = Level(5, screen)
+level = Level(2, screen)
 running = True
 while running:
     screen.fill((255, 255, 255))
