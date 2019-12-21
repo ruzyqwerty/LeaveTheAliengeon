@@ -22,13 +22,35 @@ class Level:
 
     def load_level(self, count):
         width, height = self.load_room('room_spawn.txt')
-        self.load_corridor('corridor_horizontal.txt', width, height)
+        self.load_horizontal_corridor(width, height)
         for _ in range(count - 2):
-            width, height = self.load_room('room_fight.txt')
-            self.load_corridor('corridor_horizontal.txt', width, height)
+            passage = None
+            rando = randint(1, 10)
+            if rando % 2 == 0:
+                passage = self.load_bonus_room(width, height)
+            width, height = self.load_room('room_fight.txt', passage)
+            self.load_horizontal_corridor(width, height)
 
-    def load_room(self, name):
-        room = Room(name, self.offset)
+    def load_bonus_room(self, width, height):
+        offset_x, offset_y = self.offset
+        where_is_exit = randint(1, 10)
+        if where_is_exit % 2 == 0:
+            offset = self.load_vertical_corridor(width, height, 1)
+            offset_y -= offset
+            offset_y -= height * BLOCK_SIZE
+            room = Room('room_bonus.txt', (offset_x, offset_y), 2)
+            self.all_sprites.add(room.room_sprites)
+            return 1
+        else:
+            offset = self.load_vertical_corridor(width, height, 2)
+            offset_y += offset
+            offset_y += height * BLOCK_SIZE
+            room = Room('room_bonus.txt', (offset_x, offset_y), 1)
+            self.all_sprites.add(room.room_sprites)
+            return 2
+
+    def load_room(self, name, passage=None):
+        room = Room(name, self.offset, passage)
         self.all_sprites.add(room.room_sprites)
         self.non_active_sprites.add(room.block_walls)
         if room.player is not None:
@@ -37,11 +59,22 @@ class Level:
         self.rooms.append(room)
         return width, height
 
-    def load_corridor(self, name, width, height):
+    def load_vertical_corridor(self, width, height, passage):
+        offset_x, offset_y = self.offset
+        corridor = Room('corridor_vertical.txt', (offset_x + (width // 2 - 2) * BLOCK_SIZE, offset_y))
+        if passage == 1:
+            for sprite in corridor.room_sprites:
+                sprite.rect.y -= corridor.height * BLOCK_SIZE
+        if passage == 2:
+            for sprite in corridor.room_sprites:
+                sprite.rect.y += height * BLOCK_SIZE
+        self.all_sprites.add(corridor.room_sprites)
+        return corridor.height * BLOCK_SIZE
+
+    def load_horizontal_corridor(self, width, height):
         offset_x, offset_y = self.offset
         offset_x += width * BLOCK_SIZE
-        self.offset = offset_x, offset_y
-        corridor = Room(name, (offset_x, offset_y + (height // 2 - 2) * BLOCK_SIZE))
+        corridor = Room('corridor_horizontal.txt', (offset_x, offset_y + (height // 2 - 2) * BLOCK_SIZE))
         width, height = corridor.width, corridor.height
         self.all_sprites.add(corridor.room_sprites)
         offset_x += width * BLOCK_SIZE
@@ -77,6 +110,7 @@ class Level:
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
             if pygame.sprite.spritecollideany(self.player, self.rooms[self.last_room + 1].scripts):
+                self.last_room += 1
                 self.all_sprites.add(self.non_active_sprites)
 
     def update(self):
@@ -110,7 +144,15 @@ class Room:
         height = len(room_map)
         room_map = [list(row) for row in room_map]
         if passage is not None:
-            pass
+            row = None
+            if passage == 1:
+                row = 0
+            elif passage == 2:
+                row = height - 1
+            if row is not None:
+                room_map[row][width // 2 - 1] = '|'
+                room_map[row][width // 2] = '|'
+                room_map[row][width // 2 + 1] = '|'
         for row in range(height):
             for col in range(width):
                 obj = None
