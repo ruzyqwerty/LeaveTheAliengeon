@@ -11,10 +11,12 @@ class Level:
         self.height = 0
         self.player = None
         self.all_sprites = pygame.sprite.Group()
+        self.non_active_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
         self.offset = (0, 0)
         self.surface = surface
         self.rooms = []
+        self.last_room = 0
 
         self.load_level(count)
 
@@ -28,6 +30,7 @@ class Level:
     def load_room(self, name):
         room = Room(name, self.offset)
         self.all_sprites.add(room.room_sprites)
+        self.non_active_sprites.add(room.block_walls)
         if room.player is not None:
             self.player = room.player
         width, height = room.width, room.height
@@ -59,20 +62,28 @@ class Level:
                     self.player.speed = 0, self.player.speed[1]
 
     def center_camera(self):
-        # x = - (self.player.rect.x + self.player.rect.w // 2 - 300)
-        # y = - (self.player.rect.y + self.player.rect.h // 2 - 200)
         x = - (self.player.rect.x + self.player.rect.w // 2 - pygame.display.Info().current_w // 2)
         y = - (self.player.rect.y + self.player.rect.h // 2 - pygame.display.Info().current_h // 2)
         for sprite in self.all_sprites:
             sprite.rect.x += x
             sprite.rect.y += y
+        for sprite in self.non_active_sprites:
+            if sprite not in self.all_sprites:
+                sprite.rect.x += x
+                sprite.rect.y += y
         self.player.rect.x += x
         self.player.rect.y += y
+
+    def update_rooms(self):
+        if self.last_room + 1 < len(self.rooms):
+            if pygame.sprite.spritecollideany(self.player, self.rooms[self.last_room + 1].scripts):
+                self.all_sprites.add(self.non_active_sprites)
 
     def update(self):
         self.center_camera()
         self.player.normalize_speed()
         self.check_collision()
+        self.update_rooms()
         self.player.update()
         self.render()
 
@@ -86,6 +97,8 @@ class Room:
             self.class_name = 'room'
         self.offset = offset
         self.room_sprites = pygame.sprite.Group()
+        self.block_walls = pygame.sprite.Group()
+        self.scripts = pygame.sprite.Group()
         self.player = None
         self.width, self.height = self.load_room(name, passage)
 
@@ -105,6 +118,15 @@ class Room:
                     obj = Object('wall', col, row, BLOCK_SIZE, offset=self.offset)
                 elif room_map[row][col] == '.':
                     obj = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
+                elif room_map[row][col] == '|':
+                    obj = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    block_wall = Object('wall', col, row, BLOCK_SIZE, offset=self.offset)
+                    self.block_walls.add(block_wall)
+                elif room_map[row][col] == 'S':
+                    obj = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    script = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    self.scripts.add(script)
+                    self.room_sprites.add(script)
                 elif room_map[row][col] == 'P':
                     obj = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
                     self.player = Player(col, row, BLOCK_SIZE, offset=self.offset, colorkey=-1)
