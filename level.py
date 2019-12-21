@@ -19,143 +19,33 @@ class Level:
         self.load_level(count)
 
     def load_level(self, count):
-        if count < 3:
-            count = 3
-        offset_x, offset_y = (0, 0)
-        count -= 2
-        passage = 0, randint(1, 4)
-        width, height = self.load_room('room_spawn.txt', (offset_x, offset_y), passage=passage)
-        self.rooms.append('spawn_room')
-        exit = passage[1]
-        self.load_coridor(exit, width, height)
+        width, height = self.load_room('room_spawn.txt')
+        self.load_corridor('corridor_horizontal.txt', width, height)
+        for _ in range(count - 2):
+            width, height = self.load_room('room_fight.txt')
+            self.load_corridor('corridor_horizontal.txt', width, height)
 
-        while len(self.rooms) - 2 != count:
-            enter = 0
-            if exit == 1:
-                enter = 3
-            elif exit == 2:
-                enter = 4
-            elif exit == 3:
-                enter = 1
-            elif exit == 4:
-                enter = 2
-            exit = randint(1, 4)
-            while exit == enter:
-                exit = randint(1, 4)
-            width, height = self.load_room('room_fight.txt', self.offset, passage=(enter, exit))
-            if width is not None:
-                self.rooms.append('fight_room')
-                if enter == 2:
-                    offset_x -= width * BLOCK_SIZE
-                elif enter == 1:
-                    offset_y -= height * BLOCK_SIZE
-                self.load_coridor(exit, width, height)
+    def load_room(self, name):
+        room = Room(name, self.offset)
+        self.all_sprites.add(room.room_sprites)
+        if room.player is not None:
+            self.player = room.player
+        width, height = room.width, room.height
+        self.rooms.append(room)
+        return width, height
 
-    def load_coridor(self, exit, width, height):
+    def load_corridor(self, name, width, height):
         offset_x, offset_y = self.offset
-        if exit == 2 or exit == 4:
-            x = 0
-            if exit == 2:
-                x += width * BLOCK_SIZE
-            else:
-                x -= width // 2 * BLOCK_SIZE
-            y = (height // 2 - 2) * BLOCK_SIZE
-            width, height = self.load_room('corridor_horizontal.txt', (offset_x + x, offset_y + y))
-            if width is not None:
-                offset_x += x
-                if exit == 2:
-                    offset_x += width * BLOCK_SIZE
-        elif exit == 1 or exit == 3:
-            y = 0
-            if exit == 1:
-                y -= height // 2 * BLOCK_SIZE
-            else:
-                y += height * BLOCK_SIZE
-            x = (width // 2 - 2) * BLOCK_SIZE
-            width, height = self.load_room('corridor_vertical.txt', (offset_x + x, offset_y + y))
-            if width is not None:
-                offset_y += y
-                if exit == 3:
-                    offset_y += height * BLOCK_SIZE
+        offset_x += width * BLOCK_SIZE
         self.offset = offset_x, offset_y
-
-    def load_room(self, name, offset, passage=None):
-        new_sprites = pygame.sprite.Group()
-        name = 'Rooms/' + name
-        with open(name, mode='r') as file:
-            room_map = [line.strip() for line in file]
-        width = len(room_map[0])
-        height = len(room_map)
-        room_map = [list(row) for row in room_map]
-        row, col = 0, 0
-        if passage is not None:
-            enter, exit = passage
-            if enter == 1 or enter == 3:
-                if enter == 1:
-                    row = 0
-                    col = width // 2
-                elif enter == 3:
-                    row = height - 1
-                    col = width // 2
-                    offset = offset[0], offset[1] - height * BLOCK_SIZE
-                room_map[row][col] = '.'
-                room_map[row][col - 1] = '.'
-                room_map[row][col + 1] = '.'
-            elif enter == 2 or enter == 4:
-                if enter == 2:
-                    row = height // 2
-                    col = width - 1
-                    offset = offset[0] - width * BLOCK_SIZE, offset[1]
-                elif enter == 4:
-                    row = height // 2
-                    col = 0
-                room_map[row][col] = '.'
-                room_map[row - 1][col] = '.'
-                room_map[row + 1][col] = '.'
-            if exit == 1 or exit == 3:
-                if exit == 1:
-                    row = 0
-                    col = width // 2
-                elif exit == 3:
-                    row = height - 1
-                    col = width // 2
-                room_map[row][col] = '.'
-                room_map[row][col - 1] = '.'
-                room_map[row][col + 1] = '.'
-            elif exit == 2 or exit == 4:
-                if exit == 2:
-                    row = height // 2
-                    col = width - 1
-                elif exit == 4:
-                    row = height // 2
-                    col = 0
-                room_map[row][col] = '.'
-                room_map[row - 1][col] = '.'
-                room_map[row + 1][col] = '.'
-        for row in range(height):
-            for col in range(width):
-                obj = None
-                if room_map[row][col] == 'W':
-                    obj = Object('wall', col, row, BLOCK_SIZE, offset=offset)
-                elif room_map[row][col] == '.':
-                    obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
-                elif room_map[row][col] == 'P':
-                    obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
-                    self.player = Player(col, row, BLOCK_SIZE, offset=offset, colorkey=(0, 255, 0))
-                if obj is not None:
-                    # self.all_sprites.add(obj)
-                    new_sprites.add(obj)
-        collided = pygame.sprite.groupcollide(new_sprites, self.all_sprites, False, False)
-        if len(collided) <= 5:
-            self.all_sprites.add(new_sprites)
-            self.offset = offset
-            return width, height
-        return None, None
+        corridor = Room(name, (offset_x, offset_y + (height // 2 - 2) * BLOCK_SIZE))
+        width, height = corridor.width, corridor.height
+        self.all_sprites.add(corridor.room_sprites)
+        offset_x += width * BLOCK_SIZE
+        self.offset = offset_x, offset_y
 
     def render(self):
         self.all_sprites.draw(self.surface)
-        # for sprite in self.all_sprites:
-        #     self.surface.blit(sprite.image, (sprite.rect.x + self.offset[0], sprite.rect.y - self.offset[1]))
         self.player.render(self.surface)
 
     def check_collision(self):
@@ -185,3 +75,39 @@ class Level:
         self.check_collision()
         self.player.update()
         self.render()
+
+
+class Room:
+    def __init__(self, name, offset, passage=None):
+        self.class_name = name
+        if name.startswith('corridor'):
+            self.class_name = 'corridor'
+        elif name.startswith('room'):
+            self.class_name = 'room'
+        self.offset = offset
+        self.room_sprites = pygame.sprite.Group()
+        self.player = None
+        self.width, self.height = self.load_room(name, passage)
+
+    def load_room(self, name, passage=None):
+        name = 'Rooms/' + name
+        with open(name, mode='r') as file:
+            room_map = [line.strip() for line in file]
+        width = len(room_map[0])
+        height = len(room_map)
+        room_map = [list(row) for row in room_map]
+        if passage is not None:
+            pass
+        for row in range(height):
+            for col in range(width):
+                obj = None
+                if room_map[row][col] == 'W':
+                    obj = Object('wall', col, row, BLOCK_SIZE, offset=self.offset)
+                elif room_map[row][col] == '.':
+                    obj = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
+                elif room_map[row][col] == 'P':
+                    obj = Object('empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    self.player = Player(col, row, BLOCK_SIZE, offset=self.offset, colorkey=-1)
+                if obj is not None:
+                    self.room_sprites.add(obj)
+        return width, height
