@@ -10,6 +10,7 @@ class Level:
         self.width = 0
         self.height = 0
         self.player = None
+        self.teleport = None
         self.all_sprites = pygame.sprite.Group()
         self.non_active_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
@@ -56,6 +57,9 @@ class Level:
         self.non_active_sprites.add(room.block_walls)
         if room.player is not None:
             self.player = room.player
+        if room.teleport is not None:
+            self.teleport = room.teleport
+            self.all_sprites.add(self.teleport)
         width, height = room.width, room.height
         self.rooms.append(room)
         return width, height
@@ -135,6 +139,7 @@ class Room:
         self.block_walls = pygame.sprite.Group()
         self.scripts = pygame.sprite.Group()
         self.player = None
+        self.teleport = None
         self.width, self.height = self.load_room(name, passage)
 
     def load_room(self, name, passage=None):
@@ -174,7 +179,8 @@ class Room:
                     obj = Object('empty', col, row, offset=self.offset)
                     self.player = Player(col, row, offset=self.offset)
                 elif room_map[row][col] == 'T':
-                    obj = Object('teleport', col, row, offset=self.offset)
+                    obj = Object('empty', col, row, offset=self.offset)
+                    self.teleport = Object('teleport', col, row, offset=self.offset)
                 if obj is not None:
                     self.room_sprites.add(obj)
         return width, height
