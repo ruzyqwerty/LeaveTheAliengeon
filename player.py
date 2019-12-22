@@ -13,7 +13,7 @@ class Player:
         self.rect.y += y * height + offset[1]
 
         self.speed = (0, 0)
-        self.normal_speed = 5
+        self.normal_speed = 10 * width / 100
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
