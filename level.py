@@ -1,6 +1,7 @@
 import pygame
 from objects import Object
 from player import Player
+from gun import Gun
 from random import randint
 from settings import BLOCK_SIZE
 
@@ -10,6 +11,7 @@ class Level:
         self.width = 0
         self.height = 0
         self.player = None
+        self.gun = None
         self.all_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
         self.offset = (0, 0)
@@ -142,6 +144,7 @@ class Level:
                 elif room_map[row][col] == 'P':
                     obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
                     self.player = Player(col, row, BLOCK_SIZE, offset=offset, colorkey=(0, 255, 0))
+                    self.gun = Gun(col, row, BLOCK_SIZE, offset=offset, colorkey=(0, 255, 0))
                 if obj is not None:
                     # self.all_sprites.add(obj)
                     new_sprites.add(obj)
@@ -157,6 +160,7 @@ class Level:
         # for sprite in self.all_sprites:
         #     self.surface.blit(sprite.image, (sprite.rect.x + self.offset[0], sprite.rect.y - self.offset[1]))
         self.player.render(self.surface)
+        self.gun.render(self.surface)
 
     def check_collision(self):
         for sprite in self.all_sprites:
@@ -184,4 +188,13 @@ class Level:
         self.player.normalize_speed()
         self.check_collision()
         self.player.update()
+        self.gun.update(self.player.rect.x, self.player.rect.y)
         self.render()
+
+
+# class Bullet:
+#     def __init__(self):
+#         pass
+#
+#     def update(self):
+#         pass
