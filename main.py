@@ -1,5 +1,5 @@
 import pygame
-from settings import WINDOW_SIZE, FULLSCREEN, FPS
+from settings import WINDOW_SIZE, FULLSCREEN, FPS   # , BLOCK_SIZE
 
 pygame.init()
 if FULLSCREEN:
@@ -33,8 +33,9 @@ while running:
             pygame.mouse.set_visible(0)
             sprite.rect.x = pygame.mouse.get_pos()[0]
             sprite.rect.y = pygame.mouse.get_pos()[1]
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                level.fire(event.pos, level.gun.rect[:2])
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    level.fire(event.pos, level.gun.rect[:2])
         # TODO На Esc можно сделать смену режима окна (полный/неполный экран), я не придумал как чтобы все работало
         # elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
         #     pygame.display.set_mode(size, flags=pygame.RESIZABLE)
