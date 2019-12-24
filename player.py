@@ -7,6 +7,8 @@ class Player:
     def __init__(self, x, y, offset=(0, 0)):
         self.images = PLAYER
         self.image = self.images[0]
+        self.image_left = pygame.transform.flip(self.images[0], True, False)
+        self.image_right = self.images[0]
         self.rect = self.image.get_rect()
         self.rect.x += x * BLOCK_SIZE + offset[0]
         self.rect.y += y * BLOCK_SIZE + offset[1]
@@ -18,8 +20,10 @@ class Player:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             speed_x = self.normal_speed * (-1)
+            self.image = self.image_left
         elif keys[pygame.K_d]:
             speed_x = self.normal_speed
+            self.image = self.image_right
         else:
             speed_x = 0
         if keys[pygame.K_w]:

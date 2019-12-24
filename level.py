@@ -143,7 +143,7 @@ class Level:
         self.check_collision()
         self.update_rooms()
         self.player.update()
-        self.gun.update(self.player.rect.x, self.player.rect.y)
+        self.gun.update(self.player.rect.x, self.player.rect.y, self.player.image == self.player.image_right)
         self.bullet_sprites.update()
         self.render()
 
