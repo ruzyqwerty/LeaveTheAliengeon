@@ -1,6 +1,6 @@
 import pygame
 from texture import PLAYER
-from settings import BLOCK_SIZE
+from settings import BLOCK_SIZE, PLAYER_SPEED
 
 
 class Player:
@@ -11,7 +11,7 @@ class Player:
         self.rect.x += x * BLOCK_SIZE + offset[0]
         self.rect.y += y * BLOCK_SIZE + offset[1]
         self.speed = (0, 0)
-        self.normal_speed = width / 10
+        self.normal_speed = PLAYER_SPEED
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()

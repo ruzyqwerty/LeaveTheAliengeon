@@ -15,9 +15,6 @@ class Gun:
         x, y = self.rect[:2]
         return x, y
 
-    # def is_fire(self, mouse_click):
-    #     pass
-
     def update(self, player_x, player_y):
         self.rect.x = player_x
         self.rect.y = player_y
