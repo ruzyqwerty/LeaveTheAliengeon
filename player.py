@@ -1,16 +1,15 @@
 import pygame
 from texture import PLAYER
+from settings import BLOCK_SIZE
 
 
 class Player:
-    def __init__(self, x, y, width, height=0, offset=(0, 0), colorkey=None):
-        if height == 0:
-            height = width
+    def __init__(self, x, y, offset=(0, 0)):
         self.images = PLAYER
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.rect.x += x * width + offset[0]
-        self.rect.y += y * height + offset[1]
+        self.rect.x += x * BLOCK_SIZE + offset[0]
+        self.rect.y += y * BLOCK_SIZE + offset[1]
 
         self.speed = (0, 0)
         self.normal_speed = 5
