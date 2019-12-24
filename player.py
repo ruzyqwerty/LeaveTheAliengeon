@@ -11,7 +11,6 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x += x * width + offset[0]
         self.rect.y += y * height + offset[1]
-        print(self.rect)
         self.speed = (0, 0)
         self.normal_speed = width / 10
 
