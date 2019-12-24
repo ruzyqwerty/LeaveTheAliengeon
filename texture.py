@@ -30,3 +30,5 @@ PLAYER = [load_image('player_idle_1.png', -1), load_image('player_idle_2.png', -
 GUN = [load_image('gun_rifle.png', -1)]
 
 AIM = [load_image('aim_1.png', (0, 255, 0))]
+
+BULLET = [load_image('bullet_1.png', (0, 255, 0))]

@@ -2,8 +2,10 @@ import pygame
 from objects import Object
 from player import Player
 from gun import Gun
+from bullet import Bullet
 from random import randint
 from settings import BLOCK_SIZE
+import copy
 
 
 class Level:
@@ -12,6 +14,7 @@ class Level:
         self.height = 0
         self.player = None
         self.gun = None
+        self.bullet_list = list()
         self.all_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
         self.offset = (0, 0)
@@ -155,12 +158,23 @@ class Level:
             return width, height
         return None, None
 
+    # TODO исправить баг с полетом пуль после выстрела (надо независимо от положения игрока)
+    def fire(self, mouse_pos, player_gun_pos):
+        x, y = self.player.rect.x, self.player.rect.y#player_pos
+        self.bullet_list.append(
+            Bullet(self.surface, x, y, BLOCK_SIZE,
+                   offset=self.offset, mouse_pos=mouse_pos, colorkey=(0, 255, 0))
+        )
+
     def render(self):
         self.all_sprites.draw(self.surface)
         # for sprite in self.all_sprites:
         #     self.surface.blit(sprite.image, (sprite.rect.x + self.offset[0], sprite.rect.y - self.offset[1]))
         self.player.render(self.surface)
         self.gun.render(self.surface)
+        if self.bullet_list:
+            for b in self.bullet_list:
+                b.render()
 
     def check_collision(self):
         for sprite in self.all_sprites:
@@ -186,6 +200,9 @@ class Level:
     def update(self):
         self.center_camera()
         self.player.normalize_speed()
+        if self.bullet_list:
+            for b in self.bullet_list:
+                b.update()
         self.check_collision()
         self.player.update()
         self.gun.update(self.player.rect.x, self.player.rect.y)

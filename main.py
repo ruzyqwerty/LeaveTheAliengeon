@@ -19,7 +19,7 @@ all_sprites.add(sprite)
 
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
-level = Level(10, screen)
+level = Level(5, screen)
 running = True
 while running:
     screen.fill((255, 255, 255))
@@ -33,6 +33,8 @@ while running:
             pygame.mouse.set_visible(0)
             sprite.rect.x = pygame.mouse.get_pos()[0]
             sprite.rect.y = pygame.mouse.get_pos()[1]
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                level.fire(event.pos, level.gun.rect[:2])
         # TODO На Esc можно сделать смену режима окна (полный/неполный экран), я не придумал как чтобы все работало
         # elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
         #     pygame.display.set_mode(size, flags=pygame.RESIZABLE)
