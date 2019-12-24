@@ -19,7 +19,7 @@ all_sprites.add(sprite)
 
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
-level = Level(2, screen)
+level = Level(5, screen)
 running = True
 while running:
     screen.fill((255, 255, 255))
