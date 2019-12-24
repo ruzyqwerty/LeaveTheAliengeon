@@ -12,9 +12,8 @@ class Bullet:
         self.images = BULLET
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.rect.x += x + offset[0]
-        self.rect.y += y + offset[1]
-        print(self.rect)
+        self.rect.x += x #+ offset[0]
+        self.rect.y += y #+ offset[1]
         self.vector = mouse_pos
         self.c = ((self.vector[0] - self.rect.x) ** 2 + (self.vector[1] - self.rect.y) ** 2) ** 0.5
         self.kx = self.vector[0] - self.rect.x

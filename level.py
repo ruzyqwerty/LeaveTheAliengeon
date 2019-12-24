@@ -160,7 +160,7 @@ class Level:
 
     # TODO исправить баг с полетом пуль после выстрела (надо независимо от положения игрока)
     def fire(self, mouse_pos, player_gun_pos):
-        x, y = self.player.rect.x, self.player.rect.y#player_pos
+        x, y = player_gun_pos
         self.bullet_list.append(
             Bullet(self.surface, x, y, BLOCK_SIZE,
                    offset=self.offset, mouse_pos=mouse_pos, colorkey=(0, 255, 0))
