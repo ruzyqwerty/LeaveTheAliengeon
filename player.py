@@ -16,15 +16,15 @@ class Player:
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             speed_x = self.normal_speed * (-1)
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_d]:
             speed_x = self.normal_speed
         else:
             speed_x = 0
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_w]:
             speed_y = self.normal_speed * (-1)
-        elif keys[pygame.K_DOWN]:
+        elif keys[pygame.K_s]:
             speed_y = self.normal_speed
         else:
             speed_y = 0

@@ -204,7 +204,7 @@ class Room:
                     self.player = Player(col, row, offset=self.offset)
                 elif room_map[row][col] == 'T':
                     obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
-                    self.teleport = Object(self.room_sprites, 'teleport', col, row, BLOCK_SIZE, offset=self.offset)
+                    self.teleport = Object(self.room_sprites, 'teleport', col - 2, row - 4, BLOCK_SIZE, offset=self.offset)
                 if obj is not None:
                     self.room_sprites.add(obj)
         return width, height

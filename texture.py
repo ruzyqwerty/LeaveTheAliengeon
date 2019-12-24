@@ -19,7 +19,7 @@ def load_image(name, colorkey=None, width=BLOCK_SIZE, height=BLOCK_SIZE):
 
 WALLS = [load_image('wall_1.png'), load_image('wall_2.png'), load_image('wall_3.png')]
 FLOORS = [load_image('floor_1.png'), load_image('floor_2.png'), load_image('floor_3.png'), load_image('floor_4.png')]
-TELEPORTS = [load_image('teleport_1.png', width=BLOCK_SIZE * 1, height=BLOCK_SIZE * 2, colorkey=(0, 0, 0))]
+TELEPORTS = [load_image('teleport_1.png', width=BLOCK_SIZE * 3, height=BLOCK_SIZE * 5, colorkey=(0, 0, 0))]
 
 LEVEL_OBJECTS = {
     'wall': choice(WALLS),
@@ -33,4 +33,4 @@ GUN = [load_image('gun_rifle.png', -1)]
 
 AIM = [load_image('aim_1.png', (0, 255, 0))]
 
-BULLET = [load_image('bullet_1.png', (0, 255, 0))]
+BULLET = [load_image('bullet_1.png', (0, 255, 0)), load_image('bullet_2.png', (0, 255, 0))]
