@@ -14,8 +14,9 @@ class Level:
         self.height = 0
         self.player = None
         self.gun = None
-        self.bullet_list = list()
         self.all_sprites = pygame.sprite.Group()
+        self.bullet_sprites = pygame.sprite.Group()
+        self.wall_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
         self.offset = (0, 0)
         self.surface = surface
@@ -141,30 +142,21 @@ class Level:
             for col in range(width):
                 obj = None
                 if room_map[row][col] == 'W':
-                    obj = Object('wall', col, row, BLOCK_SIZE, offset=offset)
+                    obj = Object((self.all_sprites, self.wall_sprites), 'wall', col, row, BLOCK_SIZE, offset=offset)
                 elif room_map[row][col] == '.':
-                    obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
+                    obj = Object((self.all_sprites, self.wall_sprites), 'empty', col, row, BLOCK_SIZE, offset=offset)
                 elif room_map[row][col] == 'P':
-                    obj = Object('empty', col, row, BLOCK_SIZE, offset=offset)
+                    obj = Object((self.all_sprites, self.wall_sprites), 'empty', col, row, BLOCK_SIZE, offset=offset)
                     self.player = Player(col, row, BLOCK_SIZE, offset=offset, colorkey=(0, 255, 0))
                     self.gun = Gun(col, row, BLOCK_SIZE, offset=offset, colorkey=(0, 255, 0))
                 if obj is not None:
-                    # self.all_sprites.add(obj)
                     new_sprites.add(obj)
-        collided = pygame.sprite.groupcollide(new_sprites, self.all_sprites, False, False)
-        if len(collided) <= 5:
-            self.all_sprites.add(new_sprites)
-            self.offset = offset
-            return width, height
-        return None, None
+        return width, height
 
     # TODO исправить баг с полетом пуль после выстрела (надо независимо от положения игрока)
     def fire(self, mouse_pos, player_gun_pos):
         x, y = player_gun_pos
-        self.bullet_list.append(
-            Bullet(self.surface, x, y, BLOCK_SIZE,
-                   offset=self.offset, mouse_pos=mouse_pos, colorkey=(0, 255, 0))
-        )
+        Bullet(x, y, BLOCK_SIZE, offset=self.offset, mouse_pos=mouse_pos, colorkey=-1, group=(self.bullet_sprites, self.all_sprites))
 
     def render(self):
         self.all_sprites.draw(self.surface)
@@ -172,12 +164,10 @@ class Level:
         #     self.surface.blit(sprite.image, (sprite.rect.x + self.offset[0], sprite.rect.y - self.offset[1]))
         self.player.render(self.surface)
         self.gun.render(self.surface)
-        if self.bullet_list:
-            for b in self.bullet_list:
-                b.render()
+        self.bullet_sprites.draw(self.surface)
 
     def check_collision(self):
-        for sprite in self.all_sprites:
+        for sprite in self.wall_sprites:
             if sprite.class_name == 'wall' and sprite.rect.colliderect(self.player.rect):
                 if sprite.rect.collidepoint(self.player.rect.midtop) and self.player.speed[1] < 0 \
                         or sprite.rect.collidepoint(self.player.rect.midbottom) and self.player.speed[1] > 0:
@@ -187,8 +177,6 @@ class Level:
                     self.player.speed = 0, self.player.speed[1]
 
     def center_camera(self):
-        # x = - (self.player.rect.x + self.player.rect.w // 2 - 300)
-        # y = - (self.player.rect.y + self.player.rect.h // 2 - 200)
         x = - (self.player.rect.x + self.player.rect.w // 2 - pygame.display.Info().current_w // 2)
         y = - (self.player.rect.y + self.player.rect.h // 2 - pygame.display.Info().current_h // 2)
         for sprite in self.all_sprites:
@@ -200,18 +188,8 @@ class Level:
     def update(self):
         self.center_camera()
         self.player.normalize_speed()
-        if self.bullet_list:
-            for b in self.bullet_list:
-                b.update()
         self.check_collision()
         self.player.update()
         self.gun.update(self.player.rect.x, self.player.rect.y)
+        self.bullet_sprites.update()
         self.render()
-
-
-# class Bullet:
-#     def __init__(self):
-#         pass
-#
-#     def update(self):
-#         pass
