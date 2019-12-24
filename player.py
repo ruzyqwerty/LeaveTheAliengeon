@@ -10,9 +10,8 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x += x * BLOCK_SIZE + offset[0]
         self.rect.y += y * BLOCK_SIZE + offset[1]
-
         self.speed = (0, 0)
-        self.normal_speed = 5
+        self.normal_speed = width / 10
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()

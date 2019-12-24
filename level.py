@@ -1,8 +1,11 @@
 import pygame
 from objects import Object
 from player import Player
+from gun import Gun
+from bullet import Bullet
 from random import randint
 from settings import BLOCK_SIZE
+import copy
 
 
 class Level:
@@ -10,8 +13,11 @@ class Level:
         self.width = 0
         self.height = 0
         self.player = None
-        self.teleport = None
+        self.gun = None
         self.all_sprites = pygame.sprite.Group()
+        self.bullet_sprites = pygame.sprite.Group()
+        self.wall_sprites = pygame.sprite.Group()
+        self.teleport = None
         self.non_active_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
         self.offset = (0, 0)
@@ -51,6 +57,10 @@ class Level:
             self.all_sprites.add(room.room_sprites)
             return 2
 
+    def fire(self, mouse_pos, player_gun_pos):
+        x, y = player_gun_pos
+        Bullet(x, y, BLOCK_SIZE, offset=self.offset, mouse_pos=mouse_pos, colorkey=-1, group=(self.bullet_sprites, self.all_sprites))
+        
     def load_room(self, name, passage=None):
         room = Room(name, self.offset, passage)
         self.all_sprites.add(room.room_sprites)
@@ -88,9 +98,11 @@ class Level:
     def render(self):
         self.all_sprites.draw(self.surface)
         self.player.render(self.surface)
+        self.gun.render(self.surface)
+        self.bullet_sprites.draw(self.surface)
 
     def check_collision(self):
-        for sprite in self.all_sprites:
+        for sprite in self.wall_sprites:
             if sprite.class_name == 'wall' and sprite.rect.colliderect(self.player.rect):
                 if sprite.rect.collidepoint(self.player.rect.midtop) and self.player.speed[1] < 0 \
                         or sprite.rect.collidepoint(self.player.rect.midbottom) and self.player.speed[1] > 0:
@@ -124,6 +136,8 @@ class Level:
         self.check_collision()
         self.update_rooms()
         self.player.update()
+        self.gun.update(self.player.rect.x, self.player.rect.y)
+        self.bullet_sprites.update()
         self.render()
 
 

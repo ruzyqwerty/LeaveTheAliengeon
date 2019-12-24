@@ -4,8 +4,10 @@ from settings import BLOCK_SIZE
 
 
 class Object(pygame.sprite.Sprite):
-    def __init__(self, name, x, y, offset=(0, 0)):
-        super().__init__()
+    def __init__(self, groups, name, x, y, width, height=0, offset=(0, 0), colorkey=None):
+        super().__init__(groups)
+        if height == 0:
+            height = width
         self.class_name = name
         self.image = LEVEL_OBJECTS[name]
         self.rect = self.image.get_rect()
