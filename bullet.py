@@ -8,12 +8,13 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__(group)
         if height == 0:
             height = width
-        self.speed = BULLET_SPEED
+        self.speed = BULLET_SPEED * width / 10
+        # self.speed = BULLET_SPEED
         self.images = BULLET
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.rect.x += x #+ offset[0]
-        self.rect.y += y #+ offset[1]
+        self.rect.x += x  # * width - offset[0]
+        self.rect.y += y  # * height - offset[1]
         self.vector = mouse_pos
         self.kx = self.vector[0] - self.rect.x
         self.ky = self.vector[1] - self.rect.y

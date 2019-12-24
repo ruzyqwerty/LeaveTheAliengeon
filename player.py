@@ -11,7 +11,8 @@ class Player:
         self.rect.x += x * BLOCK_SIZE + offset[0]
         self.rect.y += y * BLOCK_SIZE + offset[1]
         self.speed = (0, 0)
-        self.normal_speed = PLAYER_SPEED
+        self.normal_speed = PLAYER_SPEED * BLOCK_SIZE / 10
+        # self.normal_speed = PLAYER_SPEED
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
