@@ -12,12 +12,15 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x += x * BLOCK_SIZE + offset[0]
         self.rect.y += y * BLOCK_SIZE + offset[1]
+        # mask (hitbox) of player sprite
+        self.mask = pygame.mask.from_surface(self.image)
         self.speed = (0, 0)
         self.normal_speed = PLAYER_SPEED * BLOCK_SIZE / 10
         # self.normal_speed = PLAYER_SPEED
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
+        # TODO bug двигается с меньшей скорость направо и вниз (заметно есть уменьшить BLOCK_SIZE до 10)
         if keys[pygame.K_a]:
             speed_x = self.normal_speed * (-1)
             self.image = self.image_left
