@@ -1,8 +1,6 @@
 import pygame
 from objects import Object
 from player import Player
-from gun import Gun
-from bullet import Bullet
 from random import randint
 from settings import BLOCK_SIZE
 
@@ -12,7 +10,6 @@ class Level:
         self.width = 0
         self.height = 0
         self.player = None
-        self.gun = None
         self.all_sprites = pygame.sprite.Group()
         self.all_state_sprites = pygame.sprite.Group()
         self.drawing_sprites = pygame.sprite.Group()
@@ -61,10 +58,6 @@ class Level:
             self.all_sprites.add(room.room_sprites)
             return 2
 
-    def fire(self, mouse_pos, player_gun_pos):
-        x, y = player_gun_pos
-        Bullet(x, y, BLOCK_SIZE, offset=self.offset, mouse_pos=mouse_pos, colorkey=-1, group=(self.bullet_sprites, self.all_state_sprites))
-
     def load_room(self, name, passage=None):
         room = Room(name, self.offset, passage)
         self.all_sprites.add(room.room_sprites, room.block_walls)
@@ -72,8 +65,6 @@ class Level:
         self.all_state_sprites.add(room.room_sprites)
         self.non_active_sprites.add(room.block_walls)
         if room.player is not None:
-            if room.gun is not None:
-                self.gun = room.gun
             self.player = room.player
         if room.teleport is not None:
             self.teleport = room.teleport
@@ -112,7 +103,6 @@ class Level:
         self.drawing_sprites.draw(self.surface)
         self.all_dynamic_sprites.draw(self.surface)
         self.player.render(self.surface)
-        self.gun.render(self.surface)
         self.bullet_sprites.draw(self.surface)
 
     def check_collision(self):
@@ -140,6 +130,9 @@ class Level:
         for sprite in self.all_state_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
                 self.drawing_sprites.add(sprite)
+        for sprite in self.all_dynamic_sprites:
+            if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
+                self.drawing_sprites.add(sprite)
 
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
@@ -148,13 +141,13 @@ class Level:
                 self.all_state_sprites.add(self.non_active_sprites)
                 self.wall_sprites.add(self.non_active_sprites)
 
-    def update(self):
+    def update(self, events):
         self.center_camera()
-        self.player.normalize_speed()
         self.check_collision()
         self.update_rooms()
-        self.player.update()
-        self.gun.update(self.player.rect.x, self.player.rect.y, self.player.image == self.player.image_right)
+        self.player.update(events)
+        if not self.bullet_sprites.has(self.player.gun.bullet_sprites):
+            self.bullet_sprites = self.player.gun.bullet_sprites
         self.bullet_sprites.update()
         self.render()
 
@@ -173,7 +166,6 @@ class Room:
         self.scripts = pygame.sprite.Group()
         self.player = None
         self.teleport = None
-        self.gun = None
         self.width, self.height = self.load_room(name, passage)
 
     def load_room(self, name, passage=None):
@@ -211,7 +203,6 @@ class Room:
                     self.room_sprites.add(script)
                 elif room_map[row][col] == 'P':
                     obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
-                    self.gun = Gun(col, row, BLOCK_SIZE, offset=self.offset, colorkey=(0, 255, 0))
                     self.player = Player(col, row, offset=self.offset)
                 elif room_map[row][col] == 'T':
                     obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
