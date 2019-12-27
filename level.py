@@ -99,12 +99,6 @@ class Level:
         offset_x += width * BLOCK_SIZE
         self.offset = offset_x, offset_y
 
-    def render(self):
-        self.drawing_sprites.draw(self.surface)
-        self.all_dynamic_sprites.draw(self.surface)
-        self.player.render(self.surface)
-        self.bullet_sprites.draw(self.surface)
-
     def check_collision(self):
         for sprite in self.wall_sprites:
             if sprite.class_name == 'wall' and sprite.rect.colliderect(self.player.rect):
@@ -140,6 +134,12 @@ class Level:
                 self.last_room += 1
                 self.all_state_sprites.add(self.non_active_sprites)
                 self.wall_sprites.add(self.non_active_sprites)
+
+    def render(self):
+        self.drawing_sprites.draw(self.surface)
+        self.all_dynamic_sprites.draw(self.surface)
+        self.player.render(self.surface)
+        self.bullet_sprites.draw(self.surface)
 
     def update(self, events):
         self.center_camera()
