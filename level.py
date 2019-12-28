@@ -139,16 +139,16 @@ class Level:
         self.drawing_sprites.draw(self.surface)
         self.all_dynamic_sprites.draw(self.surface)
         self.player.render(self.surface)
-        self.bullet_sprites.draw(self.surface)
 
     def update(self, events):
         self.center_camera()
         self.check_collision()
         self.update_rooms()
         self.player.update(events)
-        if not self.bullet_sprites.has(self.player.gun.bullet_sprites):
-            self.bullet_sprites = self.player.gun.bullet_sprites
-        self.bullet_sprites.update()
+        if not self.all_sprites.has(self.player.gun.bullet_sprites):
+            self.all_sprites.remove(self.player.gun.bullet_sprites)
+            self.all_sprites.add(self.player.gun.bullet_sprites)
+        self.all_sprites.update()
         self.render()
 
 
