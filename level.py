@@ -18,13 +18,13 @@ class Level:
         self.all_dynamic_sprites = pygame.sprite.Group()
         self.bullet_sprites = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
+        self.enemies_sprites = pygame.sprite.Group()
         self.teleport = None
         self.non_active_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
         self.offset = (0, 0)
         self.surface = surface
         self.rooms = []
-        self.enemies = []
         self.last_room = 0
 
         self.load_level(count)
@@ -69,12 +69,13 @@ class Level:
         self.non_active_sprites.add(room.block_walls)
         if room.player is not None:
             self.player = room.player
-        if room.teleport is not None:
+        elif room.teleport is not None:
             self.teleport = room.teleport
             self.all_dynamic_sprites.add(self.teleport)
             self.all_sprites.add(self.teleport)
-        if room.enemies is not None:
-            self.enemies.extend(room.enemies)
+        elif len(room.enemies_sprites) > 0:
+            self.enemies_sprites.add(room.enemies_sprites)
+            self.all_sprites.add(room.enemies_sprites)
         width, height = room.width, room.height
         self.rooms.append(room)
         return width, height
@@ -120,9 +121,6 @@ class Level:
         for sprite in self.all_sprites:
             sprite.rect.x += x
             sprite.rect.y += y
-        for enemy in self.enemies:
-            enemy.rect.x += x
-            enemy.rect.y += y
         self.player.rect.x += x
         self.player.rect.y += y
         self.optimize()
@@ -135,6 +133,9 @@ class Level:
         for sprite in self.all_dynamic_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
                 self.drawing_sprites.add(sprite)
+        for sprite in self.enemies_sprites:
+            if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
+                self.drawing_sprites.add(sprite)
 
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
@@ -145,10 +146,6 @@ class Level:
 
     def render(self):
         self.drawing_sprites.draw(self.surface)
-        self.all_dynamic_sprites.draw(self.surface)
-        for enemy in self.enemies:
-            if enemy.room_number == self.last_room or enemy.room_number == self.last_room + 1:
-                enemy.render(self.surface)
         self.player.render(self.surface)
 
     def update(self, events):
@@ -175,8 +172,8 @@ class Room:
         self.room_sprites = pygame.sprite.Group()
         self.block_walls = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
+        self.enemies_sprites = pygame.sprite.Group()
         self.scripts = pygame.sprite.Group()
-        self.enemies = None
         self.player = None
         self.teleport = None
         self.width, self.height = self.load_room(name, passage)
@@ -232,10 +229,7 @@ class Room:
         busy = set()
         count = randint(2, 5)
         for _ in range(count):
-            if self.enemies is None:
-                self.enemies = []
             col, row = randint(1, self.width - 2), randint(1, self.height - 2)
             if (col, row) not in busy:
                 busy.add((col, row))
-                enemy = Enemy(col, row, offset=self.offset, room_number=self.number)
-                self.enemies.append(enemy)
+                enemy = Enemy(col, row, offset=self.offset, room_number=self.number, groups=self.enemies_sprites)

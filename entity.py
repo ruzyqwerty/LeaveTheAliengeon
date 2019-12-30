@@ -3,8 +3,9 @@ from texture import PLAYER, ENEMY, GUN, BULLET_PLAYER, BULLET_ENEMY
 from settings import BLOCK_SIZE, PLAYER_SPEED, ENEMY_SPEED, BULLET_SPEED
 
 
-class Body:
-    def __init__(self, texture, x=None, y=None, offset=(0, 0)):
+class Body(pygame.sprite.Sprite):
+    def __init__(self, texture, x=None, y=None, offset=(0, 0), groups=[]):
+        super().__init__(groups)
         self.speed = (0, 0)
         self.normal_speed = None
         self.images = texture
@@ -16,6 +17,8 @@ class Body:
         self.rect.y += y * BLOCK_SIZE + offset[1]
         # mask (hit box) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
+
+        self.health = 100
 
     # def update(self):
     #     self.rect.x += self.speed[0]
@@ -78,9 +81,9 @@ class Player(Body):
 
 
 class Enemy(Body):
-    def __init__(self, x, y, offset=(0, 0), room_number=0):
+    def __init__(self, x, y, offset=(0, 0), room_number=0, groups=[]):
         self.images = ENEMY
-        super().__init__(ENEMY, x=x, y=y, offset=offset)
+        super().__init__(ENEMY, x=x, y=y, offset=offset, groups=groups)
         self.room_number = room_number
         # self.image = self.images[0]
         # self.image_left = pygame.transform.flip(self.images[0], True, False)
@@ -126,10 +129,12 @@ class Gun:
         self.w_h = width, height
         self.bullet_sprites = pygame.sprite.Group()
         self.max_range = 750
+        self.damage = 30
+        self.ammo = 15
 
     def fire(self, mouse_position):
         x, y = self.rect[:2]
-        Bullet(x, y, BLOCK_SIZE, colorkey=-1, mouse_pos=mouse_position, group=self.bullet_sprites, player=self.player, max_range=750)
+        Bullet(x, y, BLOCK_SIZE, colorkey=-1, mouse_pos=mouse_position, group=self.bullet_sprites, player=self.player, max_range=750, damage=self.damage)
 
     def on_hand(self):
         x, y = self.rect[:2]
@@ -152,12 +157,13 @@ class Gun:
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height=0, offset=(0, 0), mouse_pos=(0, 0), colorkey=None, group=None, player=None, max_range=None):
+    def __init__(self, x, y, width, height=0, offset=(0, 0), mouse_pos=(0, 0), colorkey=None, group=None, player=None, max_range=None, damage=0):
         super().__init__(group)
         if height == 0:
             height = width
         self.all_groups = [group]
         self.player = player
+        self.damage = damage
         self.speed = BULLET_SPEED * width / 10
         # self.speed = BULLET_SPEED
         self.images = BULLET_PLAYER
@@ -174,6 +180,11 @@ class Bullet(pygame.sprite.Sprite):
         self.c = (self.kx ** 2 + self.ky ** 2) ** 0.5
         self.change_texture = 0
         self.max_range = max_range
+
+    def check_hit(self, object_rect):
+        if self.rect.colliderect(object_rect):
+            return True
+        return False
 
     def update(self):
         self.rect.x += int(self.kx / self.c * self.speed)
