@@ -1,6 +1,8 @@
+from typing import Any, Union
+
 import pygame
 from objects import Object
-from entity import Player  # , Enemy
+from entity import Player, Enemy
 from random import randint
 from settings import BLOCK_SIZE
 
@@ -22,6 +24,7 @@ class Level:
         self.offset = (0, 0)
         self.surface = surface
         self.rooms = []
+        self.enemies = []
         self.last_room = 0
 
         self.load_level(count)
@@ -29,14 +32,14 @@ class Level:
     def load_level(self, count):
         width, height = self.load_room('room_spawn.txt')
         self.load_horizontal_corridor(width, height)
-        for _ in range(count - 2):
+        for i in range(count - 2):
             passage = None
             rando = randint(1, 10)
             if rando % 2 == 0:
                 passage = self.load_bonus_room(width, height)
-            width, height = self.load_room('room_fight.txt', passage)
+            width, height = self.load_room('room_fight.txt', passage, number=i + 1)
             self.load_horizontal_corridor(width, height)
-        self.load_room('room_portal.txt')
+        self.load_room('room_portal.txt', number=count)
 
     def load_bonus_room(self, width, height):
         offset_x, offset_y = self.offset
@@ -58,8 +61,8 @@ class Level:
             self.all_sprites.add(room.room_sprites)
             return 2
 
-    def load_room(self, name, passage=None):
-        room = Room(name, self.offset, passage)
+    def load_room(self, name, passage=None, number=0):
+        room = Room(name, self.offset, passage, number=number)
         self.all_sprites.add(room.room_sprites, room.block_walls)
         self.wall_sprites.add(room.wall_sprites)
         self.all_state_sprites.add(room.room_sprites)
@@ -70,6 +73,8 @@ class Level:
             self.teleport = room.teleport
             self.all_dynamic_sprites.add(self.teleport)
             self.all_sprites.add(self.teleport)
+        if room.enemies is not None:
+            self.enemies.extend(room.enemies)
         width, height = room.width, room.height
         self.rooms.append(room)
         return width, height
@@ -115,6 +120,9 @@ class Level:
         for sprite in self.all_sprites:
             sprite.rect.x += x
             sprite.rect.y += y
+        for enemy in self.enemies:
+            enemy.rect.x += x
+            enemy.rect.y += y
         self.player.rect.x += x
         self.player.rect.y += y
         self.optimize()
@@ -138,6 +146,9 @@ class Level:
     def render(self):
         self.drawing_sprites.draw(self.surface)
         self.all_dynamic_sprites.draw(self.surface)
+        for enemy in self.enemies:
+            if enemy.room_number == self.last_room or enemy.room_number == self.last_room + 1:
+                enemy.render(self.surface)
         self.player.render(self.surface)
 
     def update(self, events):
@@ -153,8 +164,9 @@ class Level:
 
 
 class Room:
-    def __init__(self, name, offset, passage=None):
+    def __init__(self, name, offset, passage=None, number=0):
         self.class_name = name
+        self.number = number
         if name.startswith('corridor'):
             self.class_name = 'corridor'
         elif name.startswith('room'):
@@ -164,9 +176,12 @@ class Room:
         self.block_walls = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
         self.scripts = pygame.sprite.Group()
+        self.enemies = None
         self.player = None
         self.teleport = None
         self.width, self.height = self.load_room(name, passage)
+        if 'fight' in name:
+            self.generate_enemies()
 
     def load_room(self, name, passage=None):
         name = 'Rooms/' + name
@@ -212,3 +227,15 @@ class Room:
                 if obj is not None:
                     self.room_sprites.add(obj)
         return width, height
+
+    def generate_enemies(self):
+        busy = set()
+        count = randint(2, 5)
+        for _ in range(count):
+            if self.enemies is None:
+                self.enemies = []
+            col, row = randint(1, self.width - 2), randint(1, self.height - 2)
+            if (col, row) not in busy:
+                busy.add((col, row))
+                enemy = Enemy(col, row, offset=self.offset, room_number=self.number)
+                self.enemies.append(enemy)

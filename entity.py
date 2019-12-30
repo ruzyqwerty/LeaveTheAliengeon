@@ -78,9 +78,10 @@ class Player(Body):
 
 
 class Enemy(Body):
-    def __init__(self, x, y, offset=(0, 0)):
+    def __init__(self, x, y, offset=(0, 0), room_number=0):
         self.images = ENEMY
         super().__init__(ENEMY, x=x, y=y, offset=offset)
+        self.room_number = room_number
         # self.image = self.images[0]
         # self.image_left = pygame.transform.flip(self.images[0], True, False)
         # self.image_right = self.images[0]
