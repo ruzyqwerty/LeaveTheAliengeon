@@ -14,7 +14,8 @@ class Level:
         self.player = None
         self.all_sprites = pygame.sprite.Group()
         self.all_state_sprites = pygame.sprite.Group()
-        self.drawing_sprites = pygame.sprite.Group()
+        self.drawing_sprites_layer_1 = pygame.sprite.Group()
+        self.drawing_sprites_layer_2 = pygame.sprite.Group()
         self.all_dynamic_sprites = pygame.sprite.Group()
         self.bullet_sprites = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
@@ -126,16 +127,17 @@ class Level:
         self.optimize()
 
     def optimize(self):
-        self.drawing_sprites.clear(self.surface, self.surface)
+        self.drawing_sprites_layer_1.clear(self.surface, self.surface)
+        self.drawing_sprites_layer_2.clear(self.surface, self.surface)
         for sprite in self.all_state_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
-                self.drawing_sprites.add(sprite)
+                self.drawing_sprites_layer_1.add(sprite)
         for sprite in self.all_dynamic_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
-                self.drawing_sprites.add(sprite)
+                self.drawing_sprites_layer_1.add(sprite)
         for sprite in self.enemies_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
-                self.drawing_sprites.add(sprite)
+                self.drawing_sprites_layer_2.add(sprite)
 
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
@@ -145,7 +147,8 @@ class Level:
                 self.wall_sprites.add(self.non_active_sprites)
 
     def render(self):
-        self.drawing_sprites.draw(self.surface)
+        self.drawing_sprites_layer_1.draw(self.surface)
+        self.drawing_sprites_layer_2.draw(self.surface)
         self.player.render(self.surface)
 
     def update(self, events):
@@ -157,6 +160,7 @@ class Level:
             self.all_sprites.remove(self.player.gun.bullet_sprites)
             self.all_sprites.add(self.player.gun.bullet_sprites)
         self.all_sprites.update()
+        self.enemies_sprites.update()
         self.render()
 
 

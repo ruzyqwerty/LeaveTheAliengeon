@@ -20,14 +20,6 @@ class Body(pygame.sprite.Sprite):
 
         self.health = 100
 
-    # def update(self):
-    #     self.rect.x += self.speed[0]
-    #     self.rect.y += self.speed[1]
-    #     pass
-
-    def render(self, surface):
-        surface.blit(self.image, (self.rect.x, self.rect.y))
-
 
 class Player(Body):
     def __init__(self, x, y, offset=(0, 0)):
@@ -72,8 +64,7 @@ class Player(Body):
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
     def render(self, surface):
-        super().render(surface)
-        # surface.blit(self.image, (self.rect.x, self.rect.y))
+        surface.blit(self.image, (self.rect.x, self.rect.y))
         self.gun.render(surface)
 
     def fire(self, mouse_positon):
@@ -99,16 +90,9 @@ class Enemy(Body):
         # self.normal_speed = PLAYER_SPEED
 
     def update(self):
-        # super().update()
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
         # self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
-
-    def render(self, surface):
-        super().render(surface)
-        # surface.blit(self.image, (self.rect.x, self.rect.y))
-        # self.gun.render(surface)
-        pass
 
     # def fire(self, mouse_positon):
     #     self.gun.fire(mouse_positon)
