@@ -35,7 +35,6 @@ class Player(Body):
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
-        # TODO bug двигается с меньшей скорость направо и вниз (заметно есть уменьшить BLOCK_SIZE до 10)
         if keys[pygame.K_a] and keys[pygame.K_d]:
             speed_x = 0
         elif keys[pygame.K_a]:
