@@ -1,6 +1,6 @@
 import pygame
 from objects import Object
-from player import Player
+from entity import Player, Enemy
 from random import randint
 from settings import BLOCK_SIZE
 
