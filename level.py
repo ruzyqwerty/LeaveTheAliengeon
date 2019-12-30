@@ -1,6 +1,6 @@
 import pygame
 from objects import Object
-from entity import Player, Enemy
+from entity import Player  # , Enemy
 from random import randint
 from settings import BLOCK_SIZE
 
@@ -189,24 +189,26 @@ class Room:
             for col in range(width):
                 obj = None
                 if room_map[row][col] == 'W':
-                    obj = Object((self.room_sprites, self.wall_sprites), 'wall', col, row, BLOCK_SIZE, offset=self.offset)
+                    obj = Object((self.room_sprites, self.wall_sprites),
+                                 'wall', col, row, BLOCK_SIZE, offset=self.offset)
                 elif room_map[row][col] == '.':
-                    obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    obj = Object((self.room_sprites,), 'empty', col, row, BLOCK_SIZE, offset=self.offset)
                 elif room_map[row][col] == '|':
-                    obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
-                    block_wall = Object(self.block_walls, 'wall', col, row, BLOCK_SIZE, offset=self.offset)
+                    obj = Object((self.room_sprites,), 'empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    block_wall = Object((self.block_walls,), 'wall', col, row, BLOCK_SIZE, offset=self.offset)
                     self.block_walls.add(block_wall)
                 elif room_map[row][col] == 'S':
-                    obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
-                    script = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    obj = Object((self.room_sprites,), 'empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    script = Object((self.room_sprites,), 'empty', col, row, BLOCK_SIZE, offset=self.offset)
                     self.scripts.add(script)
                     self.room_sprites.add(script)
                 elif room_map[row][col] == 'P':
-                    obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    obj = Object((self.room_sprites,), 'empty', col, row, BLOCK_SIZE, offset=self.offset)
                     self.player = Player(col, row, offset=self.offset)
                 elif room_map[row][col] == 'T':
-                    obj = Object(self.room_sprites, 'empty', col, row, BLOCK_SIZE, offset=self.offset)
-                    self.teleport = Object(self.room_sprites, 'teleport', col - 2, row - 4, BLOCK_SIZE, offset=self.offset)
+                    obj = Object((self.room_sprites,), 'empty', col, row, BLOCK_SIZE, offset=self.offset)
+                    self.teleport = Object((self.room_sprites,),
+                                           'teleport', col - 2, row - 4, BLOCK_SIZE, offset=self.offset)
                 if obj is not None:
                     self.room_sprites.add(obj)
         return width, height
