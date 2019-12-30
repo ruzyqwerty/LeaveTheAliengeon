@@ -127,8 +127,10 @@ class Level:
         self.optimize()
 
     def optimize(self):
-        self.drawing_sprites_layer_1.clear(self.surface, self.surface)
-        self.drawing_sprites_layer_2.clear(self.surface, self.surface)
+        # self.drawing_sprites_layer_1.clear(self.surface, self.surface)
+        # self.drawing_sprites_layer_2.clear(self.surface, self.surface)
+        self.drawing_sprites_layer_1 = pygame.sprite.Group()
+        self.drawing_sprites_layer_2 = pygame.sprite.Group()
         for sprite in self.all_state_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
                 self.drawing_sprites_layer_1.add(sprite)
@@ -143,8 +145,13 @@ class Level:
         if self.last_room + 1 < len(self.rooms):
             if pygame.sprite.spritecollideany(self.player, self.rooms[self.last_room + 1].scripts):
                 self.last_room += 1
-                self.all_state_sprites.add(self.non_active_sprites)
-                self.wall_sprites.add(self.non_active_sprites)
+                if not self.all_state_sprites.has(self.non_active_sprites):
+                    self.all_state_sprites.add(self.non_active_sprites)
+                if not self.wall_sprites.has(self.non_active_sprites):
+                    self.wall_sprites.add(self.non_active_sprites)
+            if self.last_room != 0 and len(self.rooms[self.last_room].enemies_sprites) <= 0:
+                self.all_state_sprites.remove(self.non_active_sprites)
+                self.wall_sprites.remove(self.non_active_sprites)
 
     def render(self):
         self.drawing_sprites_layer_1.draw(self.surface)
@@ -159,8 +166,10 @@ class Level:
         if not self.all_sprites.has(self.player.gun.bullet_sprites):
             self.all_sprites.remove(self.player.gun.bullet_sprites)
             self.all_sprites.add(self.player.gun.bullet_sprites)
+            self.bullet_sprites.remove(self.player.gun.bullet_sprites)
+            self.bullet_sprites.add(self.player.gun.bullet_sprites)
         self.all_sprites.update()
-        self.enemies_sprites.update()
+        self.enemies_sprites.update(self.bullet_sprites)
         self.render()
 
 

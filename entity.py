@@ -89,9 +89,14 @@ class Enemy(Body):
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
         # self.normal_speed = PLAYER_SPEED
 
-    def update(self):
+    def update(self, *bullets):
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
+        if bullets:
+            if pygame.sprite.spritecollideany(self, bullets[0]):
+                self.health -= 20
+        if self.health <= 0:
+            self.kill()
         # self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
     # def fire(self, mouse_positon):
