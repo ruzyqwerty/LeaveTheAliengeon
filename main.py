@@ -23,8 +23,9 @@ screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
 level = Level(5, screen)
 
-on_pause = True
-menu = Menu()
+on_pause = False
+start_menu = True
+menu = Menu(screen)
 
 running = True
 while running:
@@ -34,15 +35,22 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            running = False
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not start_menu:
+            on_pause = not on_pause
         if pygame.mouse.get_focused():
             pygame.mouse.set_visible(0)
             cursor.rect.x = pygame.mouse.get_pos()[0]
             cursor.rect.y = pygame.mouse.get_pos()[1]
 
-    if on_pause:
-        menu.draw(screen)
+    if on_pause or start_menu:
+        menu.update(events)
+        if 'exit' in menu.events:
+            menu.events.remove('exit')
+            running = False
+        if 'play' in menu.events:
+            menu.events.remove('play')
+            start_menu = False
+            on_pause = False
     else:
         level.update(events)
     all_sprites.draw(screen)

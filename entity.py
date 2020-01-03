@@ -51,14 +51,12 @@ class Player(Body):
         self.speed = speed_x, speed_y
 
     def update(self, events):
-        # super().update()
         types = list(map(lambda x: x.type, events))
         if pygame.KEYDOWN in types or pygame.KEYUP in types:
             self.normalize_speed()
         if pygame.MOUSEBUTTONDOWN in types:
             if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
                 self.fire(events[types.index(pygame.MOUSEBUTTONDOWN)].pos)
-        # super().update(events)
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
