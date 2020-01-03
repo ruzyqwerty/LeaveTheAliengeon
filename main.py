@@ -52,6 +52,7 @@ while running:
             start_menu = False
             on_pause = False
         if 'new game' in menu.events:
+            menu.events.remove('new game')
             level = Level(5, screen)
             on_pause = False
     else:
