@@ -42,3 +42,9 @@ AIM = [load_image('aim_1.png', (0, 255, 0))]
 
 BULLET_PLAYER = [load_image('bullet_p_1.png', (0, 255, 0)), load_image('bullet_p_2.png', (0, 255, 0))]
 BULLET_ENEMY = [load_image('bullet_e_1.png', (0, 255, 0)), load_image('bullet_e_2.png', (0, 255, 0))]
+
+BUTTONS = {
+    'play': load_image('btn_play.png', width=300, height=100, colorkey=-1),
+    'settings': load_image('btn_settings.png', width=300, height=100, colorkey=-1),
+    'exit': load_image('btn_exit.png', width=300, height=100, colorkey=-1)
+}
