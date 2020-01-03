@@ -1,7 +1,8 @@
 import pygame
-from settings import WINDOW_SIZE, FULLSCREEN, FPS   # , BLOCK_SIZE
+from settings import WINDOW_SIZE, FULLSCREEN, FPS
 
 pygame.init()
+
 if FULLSCREEN:
     screen = pygame.display.set_mode(flags=pygame.FULLSCREEN | pygame.RESIZABLE)
 else:
@@ -20,6 +21,9 @@ all_sprites.add(sprite)
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
 level = Level(5, screen)
+
+menu = True
+
 running = True
 while running:
     screen.fill((255, 255, 255))

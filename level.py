@@ -1,5 +1,3 @@
-from typing import Any, Union
-
 import pygame
 from objects import Object
 from entity import Player, Enemy
