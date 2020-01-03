@@ -52,13 +52,35 @@ class Player(Body):
             speed_y = 0
         self.speed = speed_x, speed_y
 
-    def update(self, events):
+    def check_collision(self, walls):
+        left_collision = pygame.Rect(self.rect.x, self.rect.y + self.rect.height // 4, self.rect.width // 3, self.rect.height // 2)
+        right_collision = pygame.Rect(self.rect.x + self.rect.width // 3 * 2, self.rect.y + self.rect.height // 3, self.rect.width // 3, self.rect.height // 2)
+        top_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y, self.rect.width // 2, self.rect.height // 3)
+        down_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y + self.rect.height // 3 * 2, self.rect.width // 2, self.rect.height // 3)
+
+        for wall in walls:
+            if wall.rect.colliderect(left_collision) and self.speed[0] < 0:
+                self.speed = 0, self.speed[1]
+                self.rect.x += 5
+            if wall.rect.colliderect(right_collision) and self.speed[0] > 0:
+                self.speed = 0, self.speed[1]
+                self.rect.x -= 5
+            if wall.rect.colliderect(top_collision) and self.speed[1] < 0:
+                self.speed = self.speed[0], 0
+                self.rect.y += 5
+            if wall.rect.colliderect(down_collision) and self.speed[1] > 0:
+                self.speed = self.speed[0], 0
+                self.rect.y -= 5
+
+    def update(self, events, walls=None):
         types = list(map(lambda x: x.type, events))
         if pygame.KEYDOWN in types or pygame.KEYUP in types:
             self.normalize_speed()
         if pygame.MOUSEBUTTONDOWN in types:
             if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
                 self.fire(events[types.index(pygame.MOUSEBUTTONDOWN)].pos)
+        if walls:
+            self.check_collision(walls)
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
