@@ -4,7 +4,9 @@ from settings import BLOCK_SIZE, PLAYER_SPEED, ENEMY_SPEED, BULLET_SPEED
 
 
 class Body(pygame.sprite.Sprite):
-    def __init__(self, texture, x=None, y=None, offset=(0, 0), groups=[]):
+    def __init__(self, texture, x=None, y=None, offset=(0, 0), groups=None):
+        if groups is None:
+            groups = []
         super().__init__(groups)
         self.speed = (0, 0)
         self.normal_speed = None
@@ -72,22 +74,20 @@ class Player(Body):
 
 
 class Enemy(Body):
-    def __init__(self, x, y, offset=(0, 0), room_number=0, groups=[]):
+    def __init__(self, x, y, offset=(0, 0), room_number=0, groups=None):
+        if groups is None:
+            groups = []
         self.images = ENEMY
         super().__init__(ENEMY, x=x, y=y, offset=offset, groups=groups)
         self.room_number = room_number
-        # self.image = self.images[0]
-        # self.image_left = pygame.transform.flip(self.images[0], True, False)
-        # self.image_right = self.images[0]
-        # self.rect = self.image.get_rect()
-        # self.rect.x += x * BLOCK_SIZE + offset[0]
-        # self.rect.y += y * BLOCK_SIZE + offset[1]
-        # self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
+        # self.shooting_enemy = shooting_enemy
+        # if self.shooting_enemy:
+        #     self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
+        #     self.gun.image.bullet_sprites.image = BULLET_ENEMY
         self.bullet_sprites = pygame.sprite.Group()
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
-        # self.normal_speed = PLAYER_SPEED
 
     def update(self, *bullets):
         self.rect.x += self.speed[0]
@@ -97,7 +97,8 @@ class Enemy(Body):
                 self.health -= 20
         if self.health <= 0:
             self.kill()
-        # self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
+        # if self.shooting_enemy:
+        #     self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
     # def fire(self, mouse_positon):
     #     self.gun.fire(mouse_positon)
@@ -123,7 +124,10 @@ class Gun:
 
     def fire(self, mouse_position):
         x, y = self.rect[:2]
-        Bullet(x, y, BLOCK_SIZE, colorkey=-1, mouse_pos=mouse_position, group=self.bullet_sprites, player=self.player, max_range=750, damage=self.damage)
+        Bullet(x, y, BLOCK_SIZE,
+               colorkey=-1, mouse_pos=mouse_position,
+               group=self.bullet_sprites, player=self.player,
+               max_range=777, damage=self.damage)
 
     def on_hand(self):
         x, y = self.rect[:2]
@@ -146,7 +150,10 @@ class Gun:
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height=0, offset=(0, 0), mouse_pos=(0, 0), colorkey=None, group=None, player=None, max_range=None, damage=0):
+    def __init__(self, x, y, width, height=0,
+                 mouse_pos=(0, 0), colorkey=None,
+                 group=None, player=None,
+                 max_range=None, damage=0):
         super().__init__(group)
         if height == 0:
             height = width
@@ -161,8 +168,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         # mask (hitbox) of bullet sprite
         self.mask = pygame.mask.from_surface(self.image)
-        self.rect.x += x  # * width - offset[0]
-        self.rect.y += y  # * height - offset[1]
+        self.rect.x += x
+        self.rect.y += y
         self.vector = mouse_pos
         self.kx = self.vector[0] - self.rect.x
         self.ky = self.vector[1] - self.rect.y
@@ -182,7 +189,11 @@ class Bullet(pygame.sprite.Sprite):
         if self.change_texture == 10:
             self.image = self.images[self.images.index(self.image) - 1]
             self.change_texture = 0
-        distance = (self.rect.x + self.rect.width // 2 - self.player.rect.x + self.player.rect.width // 2) ** 2 + (self.rect.y + self.rect.height // 2 - self.player.rect.y + self.player.rect.height // 2) ** 2
+        distance = (self.rect.x + self.rect.width // 2
+                    - self.player.rect.x + self.player.rect.width // 2
+                    - BLOCK_SIZE) ** 2 + \
+                   (self.rect.y + self.rect.height // 2
+                    - self.player.rect.y + self.player.rect.height // 2
+                    - BLOCK_SIZE) ** 2
         if distance >= self.max_range ** 2:
             self.kill()
-
