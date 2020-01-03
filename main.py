@@ -51,6 +51,9 @@ while running:
             menu.events.remove('play')
             start_menu = False
             on_pause = False
+        if 'new game' in menu.events:
+            level = Level(5, screen)
+            on_pause = False
     else:
         level.update(events)
     all_sprites.draw(screen)
