@@ -15,7 +15,7 @@ class Menu:
 
         self.game_on_pause = False
 
-    def draw(self):
+    def render(self):
         self.buttons_sprite.draw(self.surface)
 
     def update(self, events):
@@ -38,8 +38,6 @@ class Menu:
                     self.events.append('settings')
                 elif self.btn_exit.rect.collidepoint(x, y):
                     self.events.append('exit')
-
-        self.draw()
 
 
 class Button(pygame.sprite.Sprite):
