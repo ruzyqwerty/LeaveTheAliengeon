@@ -20,6 +20,7 @@ class Level:
         self.bullet_sprites = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
         self.enemies_sprites = pygame.sprite.Group()
+        self.is_fight = False
         self.teleport = None
         self.non_active_sprites = pygame.sprite.Group()
         self.camera_offset = (0, 0)
@@ -141,6 +142,10 @@ class Level:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
                 self.drawing_sprites_layer_2.add(sprite)
 
+    def move_enemies(self):
+        for enemy in self.enemies_sprites:
+            enemy.move(player_pos=self.player.rect[:2])
+
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
             if pygame.sprite.spritecollideany(self.player, self.rooms[self.last_room + 1].scripts):
@@ -149,9 +154,12 @@ class Level:
                     self.all_state_sprites.add(self.non_active_sprites)
                 if not self.wall_sprites.has(self.non_active_sprites):
                     self.wall_sprites.add(self.non_active_sprites)
+                self.is_fight = True
+                # self.move_enemies()
             if self.last_room != 0 and len(self.rooms[self.last_room].enemies_sprites) <= 0:
                 self.all_state_sprites.remove(self.non_active_sprites)
                 self.wall_sprites.remove(self.non_active_sprites)
+                self.is_fight = False
 
     def render(self):
         self.drawing_sprites_layer_1.draw(self.surface)
@@ -162,6 +170,8 @@ class Level:
         self.center_camera()
         self.check_collision()
         self.update_rooms()
+        if self.is_fight:
+            self.move_enemies()
         self.player.update(events)
         if not self.all_sprites.has(self.player.gun.bullet_sprites):
             self.all_sprites.remove(self.player.gun.bullet_sprites)
@@ -242,7 +252,7 @@ class Room:
         busy = set()
         count = randint(2, 5)
         for _ in range(count):
-            col, row = randint(1, self.width - 2), randint(1, self.height - 2)
+            col, row = randint(1 + 2, self.width - 2 - 2), randint(1 + 2, self.height - 2 - 2)
             if (col, row) not in busy:
                 busy.add((col, row))
                 enemy = Enemy(col, row, offset=self.offset, room_number=self.number, groups=self.enemies_sprites)
