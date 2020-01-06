@@ -144,7 +144,8 @@ class Level:
 
     def move_enemies(self):
         for enemy in self.enemies_sprites:
-            enemy.move(player_pos=self.player.rect[:2])
+            if enemy.room_number == self.last_room:
+                enemy.move(player_pos=self.player.rect[:2])
 
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
