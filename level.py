@@ -178,7 +178,7 @@ class Level:
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
         self.all_sprites.update()
-        self.enemies_sprites.update(self.bullet_sprites)
+        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         self.render()
 
 

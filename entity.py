@@ -95,11 +95,15 @@ class Enemy(Body):
             self.rect.x += round(kx / c * self.normal_speed)
             self.rect.y += round(ky / c * self.normal_speed)
 
-    def update(self, *bullets):
+    def update(self, *args):
+        bullets = None
+        room = None
+        if args:
+            bullets, room = args
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
-        if bullets:
-            if pygame.sprite.spritecollideany(self, bullets[0]):
+        if room == self.room_number and bullets:
+            if pygame.sprite.spritecollideany(self, bullets):
                 self.health -= 20
         if self.health <= 0:
             self.kill()
