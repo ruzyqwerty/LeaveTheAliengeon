@@ -29,6 +29,7 @@ class Player(Body):
         self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
         self.bullet_sprites = pygame.sprite.Group()
         self.normal_speed = PLAYER_SPEED * BLOCK_SIZE / 10
+        self.score = 0
 
     def normalize_speed(self):
         keys = pygame.key.get_pressed()
@@ -109,6 +110,7 @@ class Enemy(Body):
                 if pygame.sprite.spritecollideany(self, bullets):
                     self.health -= 20
         if self.health <= 0:
+            self.player.score += 10
             self.kill()
         if self.shooting_enemy:
             self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)

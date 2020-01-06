@@ -26,6 +26,7 @@ class Level:
         self.surface = surface
         self.rooms = []
         self.last_room = 0
+        self.score = 0
 
         self.load_level(count)
 
@@ -162,16 +163,24 @@ class Level:
         self.drawing_sprites_layer_2.draw(self.surface)
         self.player.render(self.surface)
 
-    def update(self, events):
-        self.center_camera()
-        self.check_collision()
-        self.update_rooms()
-        self.player.update(events)
+    def check_new_bullets(self):
         if not self.all_sprites.has(self.player.gun.bullet_sprites):
             self.all_sprites.remove(self.player.gun.bullet_sprites)
             self.all_sprites.add(self.player.gun.bullet_sprites)
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
+
+    def check_score(self):
+        if self.score != self.player.score:
+            print('change')
+            self.score = self.player.score
+
+    def update(self, events):
+        self.center_camera()
+        self.check_collision()
+        self.update_rooms()
+        self.player.update(events)
+        self.check_new_bullets()
         self.all_sprites.update()
         self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         self.render()
