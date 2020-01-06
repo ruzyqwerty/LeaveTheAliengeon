@@ -179,10 +179,11 @@ class Level:
         self.center_camera()
         self.check_collision()
         self.update_rooms()
+        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         self.player.update(events)
         self.check_new_bullets()
+        self.check_score()
         self.all_sprites.update()
-        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         self.render()
 
 
