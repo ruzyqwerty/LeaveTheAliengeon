@@ -1,6 +1,7 @@
 import pygame
 from texture import PLAYER, ENEMY, GUN, BULLET_PLAYER, BULLET_ENEMY
 from settings import BLOCK_SIZE, PLAYER_SPEED, ENEMY_SPEED, BULLET_SPEED
+from events import RELOAD_EVENT
 
 
 class Body(pygame.sprite.Sprite):
@@ -52,13 +53,16 @@ class Player(Body):
         else:
             speed_y = 0
         if keys[pygame.K_r]:
-            self.gun.reload()
+            pygame.time.set_timer(RELOAD_EVENT, self.gun.reload_time)
         self.speed = speed_x, speed_y
 
     def update(self, events):
         types = list(map(lambda x: x.type, events))
         if pygame.KEYDOWN in types or pygame.KEYUP in types:
             self.control_player()
+        if RELOAD_EVENT in types:
+            pygame.time.set_timer(RELOAD_EVENT, 0)
+            self.gun.reload()
         if pygame.MOUSEBUTTONDOWN in types:
             if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
                 self.gun.fire(events[types.index(pygame.MOUSEBUTTONDOWN)].pos)
@@ -69,7 +73,6 @@ class Player(Body):
     def render(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
         self.gun.render(surface)
-
 
 
 class Enemy(Body):
@@ -137,6 +140,7 @@ class Gun:
         self.damage = 30
         self.standart_ammo = 15
         self.ammo = self.standart_ammo
+        self.reload_time = 3000
 
     def reload(self):
         self.ammo = self.standart_ammo
