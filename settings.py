@@ -1,6 +1,6 @@
 # Настройки игры
 FULLSCREEN = True
-WINDOW_SIZE = (600, 400)    # default = (600, 400)
+WINDOW_SIZE = (800, 600)    # default = (600, 400)
 FPS = 60    # default = 60
 # Размер одного блока
 BLOCK_SIZE = 50     # default = 50

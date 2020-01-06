@@ -26,6 +26,7 @@ class Level:
         self.surface = surface
         self.rooms = []
         self.last_room = 0
+        self.room_done = 0
         self.score = 0
 
         self.load_level(count)
@@ -157,6 +158,8 @@ class Level:
                 self.all_state_sprites.remove(self.non_active_sprites)
                 self.wall_sprites.remove(self.non_active_sprites)
                 self.is_fight = False
+                if self.room_done != self.last_room:
+                    self.room_done += 1
 
     def render(self):
         self.drawing_sprites_layer_1.draw(self.surface)
@@ -172,7 +175,6 @@ class Level:
 
     def check_score(self):
         if self.score != self.player.score:
-            print('change')
             self.score = self.player.score
 
     def update(self, events):
@@ -184,7 +186,6 @@ class Level:
         self.check_new_bullets()
         self.check_score()
         self.all_sprites.update()
-        self.render()
 
 
 class Room:

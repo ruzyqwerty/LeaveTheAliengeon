@@ -1,6 +1,14 @@
 import pygame
 from settings import WINDOW_SIZE, FULLSCREEN, FPS
 
+
+def update_data():
+    interface.lblHP.text = 'HP: {}'.format(level.player.health)
+    interface.lblScore.text = 'Score: {}'.format(level.player.score)
+    interface.lblRoomDone.text = 'Room done: {}'.format(level.room_done)
+    interface.lblAmmo.text = 'Ammo: {}/{}'.format(level.player.gun.ammo, level.player.gun.standart_ammo)
+
+
 pygame.init()
 
 if FULLSCREEN:
@@ -10,6 +18,7 @@ else:
 
 from level import Level
 from menu import Menu
+from interface import Interface
 
 from texture import AIM
 
@@ -26,6 +35,7 @@ level = Level(5, screen)
 on_pause = False
 start_menu = True
 menu = Menu(screen)
+interface = Interface(screen)
 
 running = True
 while running:
@@ -55,8 +65,13 @@ while running:
             menu.events.remove('new game')
             level = Level(5, screen)
             on_pause = False
+        menu.render()
     else:
         level.update(events)
+        update_data()
+        interface.update()
+        level.render()
+        interface.render()
     all_sprites.draw(screen)
 
     pygame.display.flip()
