@@ -15,9 +15,11 @@ class Interface:
         self.lblHP = Label('HP: {}'.format('100'), self.all_sprites)
         self.lblScore = Label('Score: {}'.format('0'), self.all_sprites)
         self.lblRoomDone = Label('Room done: {}'.format('0'), self.all_sprites)
+        self.lblAmmo = Label('Ammo: {}/{}'.format(0, 0), self.all_sprites)
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
         self.lblScoreX = screen_width // 2 - self.lblScore.rect.width // 2
         self.lblRoomDoneX = screen_width - self.lblRoomDone.rect.width
+        self.lblAmmoY = screen_height - self.lblAmmo.rect.height
 
     def render(self):
         self.all_sprites.draw(self.surface)
@@ -26,6 +28,7 @@ class Interface:
         self.all_sprites.update()
         self.lblScore.rect.x = self.lblScoreX
         self.lblRoomDone.rect.x = self.lblRoomDoneX
+        self.lblAmmo.rect.y = self.lblAmmoY
 
 
 class Label(pygame.sprite.Sprite):

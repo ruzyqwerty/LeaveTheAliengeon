@@ -6,6 +6,7 @@ def update_data():
     interface.lblHP.text = 'HP: {}'.format(level.player.health)
     interface.lblScore.text = 'Score: {}'.format(level.player.score)
     interface.lblRoomDone.text = 'Room done: {}'.format(level.room_done)
+    interface.lblAmmo.text = 'Ammo: {}/{}'.format(level.player.gun.ammo, level.player.gun.standart_ammo)
 
 
 pygame.init()
