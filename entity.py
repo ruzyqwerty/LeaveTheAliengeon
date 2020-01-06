@@ -31,6 +31,7 @@ class Player(Body):
         self.bullet_sprites = pygame.sprite.Group()
         self.normal_speed = PLAYER_SPEED * BLOCK_SIZE / 10
         self.score = 0
+        self.action = None
 
     def control_player(self):
         keys = pygame.key.get_pressed()
@@ -53,7 +54,9 @@ class Player(Body):
         else:
             speed_y = 0
         if keys[pygame.K_r]:
-            pygame.time.set_timer(RELOAD_EVENT, self.gun.reload_time)
+            if not self.action:
+                pygame.time.set_timer(RELOAD_EVENT, self.gun.reload_time)
+                self.action = RELOAD_EVENT
         self.speed = speed_x, speed_y
 
     def update(self, events):
@@ -62,10 +65,12 @@ class Player(Body):
             self.control_player()
         if RELOAD_EVENT in types:
             pygame.time.set_timer(RELOAD_EVENT, 0)
+            self.action = None
             self.gun.reload()
         if pygame.MOUSEBUTTONDOWN in types:
             if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
-                self.gun.fire(events[types.index(pygame.MOUSEBUTTONDOWN)].pos)
+                if not self.action:
+                    self.gun.fire(events[types.index(pygame.MOUSEBUTTONDOWN)].pos)
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
