@@ -26,6 +26,7 @@ class Level:
         self.surface = surface
         self.rooms = []
         self.last_room = 0
+        self.score = 0
 
         self.load_level(count)
 
@@ -76,6 +77,9 @@ class Level:
         elif len(room.enemies_sprites) > 0:
             self.enemies_sprites.add(room.enemies_sprites)
             self.all_sprites.add(room.enemies_sprites)
+            for enemy in room.enemies_sprites:
+                if enemy.player is None:
+                    enemy.player = self.player
         width, height = room.width, room.height
         self.rooms.append(room)
         return width, height
@@ -140,11 +144,6 @@ class Level:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
                 self.drawing_sprites_layer_2.add(sprite)
 
-    def move_enemies(self):
-        for enemy in self.enemies_sprites:
-            if enemy.room_number == self.last_room:
-                enemy.move(player_pos=self.player.rect[:2])
-
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
             if pygame.sprite.spritecollideany(self.player, self.rooms[self.last_room + 1].scripts):
@@ -154,7 +153,6 @@ class Level:
                 if not self.wall_sprites.has(self.non_active_sprites):
                     self.wall_sprites.add(self.non_active_sprites)
                 self.is_fight = True
-                # self.move_enemies()
             if self.last_room != 0 and len(self.rooms[self.last_room].enemies_sprites) <= 0:
                 self.all_state_sprites.remove(self.non_active_sprites)
                 self.wall_sprites.remove(self.non_active_sprites)
@@ -165,20 +163,27 @@ class Level:
         self.drawing_sprites_layer_2.draw(self.surface)
         self.player.render(self.surface)
 
-    def update(self, events):
-        self.center_camera()
-        self.check_collision()
-        self.update_rooms()
-        if self.is_fight:
-            self.move_enemies()
-        self.player.update(events)
+    def check_new_bullets(self):
         if not self.all_sprites.has(self.player.gun.bullet_sprites):
             self.all_sprites.remove(self.player.gun.bullet_sprites)
             self.all_sprites.add(self.player.gun.bullet_sprites)
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
+
+    def check_score(self):
+        if self.score != self.player.score:
+            print('change')
+            self.score = self.player.score
+
+    def update(self, events):
+        self.center_camera()
+        self.check_collision()
+        self.update_rooms()
+        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
+        self.player.update(events)
+        self.check_new_bullets()
+        self.check_score()
         self.all_sprites.update()
-        self.enemies_sprites.update(self.bullet_sprites)
         self.render()
 
 
