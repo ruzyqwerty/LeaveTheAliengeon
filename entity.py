@@ -94,20 +94,28 @@ class Player(Body):
 
 
 class Enemy(Body):
-    def __init__(self, x, y, offset=(0, 0), room_number=0, groups=None):
+    def __init__(self, x, y, offset=(0, 0), room_number=0, groups=None, shooting_enemy=False):
         if groups is None:
             groups = []
         self.images = ENEMY
         super().__init__(ENEMY, x=x, y=y, offset=offset, groups=groups)
         self.room_number = room_number
-        # self.shooting_enemy = shooting_enemy
-        # if self.shooting_enemy:
-        #     self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
-        #     self.gun.image.bullet_sprites.image = BULLET_ENEMY
+        self.shooting_enemy = shooting_enemy
+        if self.shooting_enemy:
+            self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
         self.bullet_sprites = pygame.sprite.Group()
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
+
+    def move(self, player_pos=None):
+        vector = player_pos
+        kx = vector[0] - self.rect.x
+        ky = vector[1] - self.rect.y
+        c = (kx ** 2 + ky ** 2) ** 0.5
+        if c > 0:
+            self.rect.x += round(kx / c * self.normal_speed)
+            self.rect.y += round(ky / c * self.normal_speed)
 
     def update(self, *bullets):
         self.rect.x += self.speed[0]
@@ -117,8 +125,8 @@ class Enemy(Body):
                 self.health -= 20
         if self.health <= 0:
             self.kill()
-        # if self.shooting_enemy:
-        #     self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
+        if self.shooting_enemy:
+            self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
     # def fire(self, mouse_positon):
     #     self.gun.fire(mouse_positon)
