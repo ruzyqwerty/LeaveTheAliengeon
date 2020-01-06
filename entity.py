@@ -78,6 +78,7 @@ class Enemy(Body):
         self.images = ENEMY
         super().__init__(ENEMY, x=x, y=y, offset=offset, groups=groups)
         self.room_number = room_number
+        self.player = None
         self.shooting_enemy = shooting_enemy
         if self.shooting_enemy:
             self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
@@ -86,8 +87,8 @@ class Enemy(Body):
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
 
-    def move(self, player_pos=None):
-        vector = player_pos
+    def move(self):
+        vector = self.player.rect[:22]
         kx = vector[0] - self.rect.x
         ky = vector[1] - self.rect.y
         c = (kx ** 2 + ky ** 2) ** 0.5
@@ -102,9 +103,11 @@ class Enemy(Body):
             bullets, room = args
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
-        if room == self.room_number and bullets:
-            if pygame.sprite.spritecollideany(self, bullets):
-                self.health -= 20
+        if room == self.room_number:
+            self.move()
+            if bullets:
+                if pygame.sprite.spritecollideany(self, bullets):
+                    self.health -= 20
         if self.health <= 0:
             self.kill()
         if self.shooting_enemy:
