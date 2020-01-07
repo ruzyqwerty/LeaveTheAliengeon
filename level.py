@@ -54,6 +54,7 @@ class Level:
             offset_y -= height * BLOCK_SIZE
             room = Room('room_bonus.txt', (offset_x, offset_y), 2)
             self.all_state_sprites.add(room.room_sprites)
+            self.wall_sprites.add(room.wall_sprites)
             self.all_sprites.add(room.room_sprites)
             return 1
         else:
@@ -62,6 +63,7 @@ class Level:
             offset_y += height * BLOCK_SIZE
             room = Room('room_bonus.txt', (offset_x, offset_y), 1)
             self.all_state_sprites.add(room.room_sprites)
+            self.wall_sprites.add(room.wall_sprites)
             self.all_sprites.add(room.room_sprites)
             return 2
 
@@ -111,16 +113,6 @@ class Level:
         self.wall_sprites.add(corridor.wall_sprites)
         offset_x += width * BLOCK_SIZE
         self.offset = offset_x, offset_y
-
-    def check_collision(self):
-        for sprite in self.wall_sprites:
-            if sprite.class_name == 'wall' and sprite.rect.colliderect(self.player.rect):
-                if sprite.rect.collidepoint(self.player.rect.midtop) and self.player.speed[1] < 0 \
-                        or sprite.rect.collidepoint(self.player.rect.midbottom) and self.player.speed[1] > 0:
-                    self.player.speed = self.player.speed[0], 0
-                if sprite.rect.collidepoint(self.player.rect.midleft) and self.player.speed[0] < 0 \
-                        or sprite.rect.collidepoint(self.player.rect.midright) and self.player.speed[0] > 0:
-                    self.player.speed = 0, self.player.speed[1]
 
     def center_camera(self):
         x = - (self.player.rect.x + self.player.rect.w // 2 - pygame.display.Info().current_w // 2)
