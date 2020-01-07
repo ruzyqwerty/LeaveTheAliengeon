@@ -172,6 +172,7 @@ class Level:
             self.all_sprites.add(self.player.gun.bullet_sprites)
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
+        pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
 
     def check_score(self):
         if self.score != self.player.score:
