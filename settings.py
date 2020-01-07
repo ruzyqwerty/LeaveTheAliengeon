@@ -10,3 +10,5 @@ BULLET_SPEED = 5   # default depended of window size = 5 but independed = 20
 PLAYER_SPEED = 2    # default depended of window size = 1.2 but independed = 5
 # Скорость врагов
 ENEMY_SPEED = 1
+# Стартовое кол-во комнат
+ROOMS_COUNT = 3
