@@ -34,7 +34,7 @@ LEVEL_OBJECTS = {
 
 PLAYER = [load_image('player_idle_1.png', -1), load_image('player_idle_2.png', -1)]
 
-ENEMY = [load_image('enemy_1.png', -1)]
+ENEMY = [load_image('enemy_1.png', -1), load_image('enemy_1_hitted.png', -1)]
 
 GUN = [load_image('gun_rifle.png', -1)]
 
