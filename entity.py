@@ -85,6 +85,7 @@ class Enemy(Body):
         if groups is None:
             groups = []
         self.images = ENEMY
+        self.speed = True
         super().__init__(ENEMY, x=x, y=y, offset=offset, groups=groups)
         self.room_number = room_number
         self.player = None
@@ -110,10 +111,21 @@ class Enemy(Body):
         room = None
         if args:
             bullets, room = args
-        self.rect.x += self.speed[0]
-        self.rect.y += self.speed[1]
         if room == self.room_number:
-            self.move()
+            group = self.groups()[0].copy()
+            group.remove(self)
+            if not pygame.sprite.spritecollideany(self, group):
+                if not pygame.sprite.collide_rect(self, self.player):
+                    self.move()
+                self.speed = True
+            elif pygame.sprite.spritecollideany(self, group):
+                list_collided = pygame.sprite.spritecollide(self, group, False)
+                if self.speed:
+                    for s in list_collided:
+                        s.speed = False
+                    if not pygame.sprite.collide_rect(self, self.player):
+                        self.move()
+                self.speed = True
             if bullets:
                 if pygame.sprite.spritecollideany(self, bullets):
                     self.health -= 20
