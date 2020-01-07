@@ -65,7 +65,9 @@ class Player(Body):
         top_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y, self.rect.width // 2, self.rect.height // 3)
         down_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y + self.rect.height // 3 * 2, self.rect.width // 2, self.rect.height // 3)
 
-        for wall in walls:
+        collided_walls = pygame.sprite.spritecollide(self, walls, False)
+
+        for wall in collided_walls:
             if wall.rect.colliderect(left_collision) and self.speed[0] < 0:
                 self.speed = 0, self.speed[1]
                 self.rect.x += 5
