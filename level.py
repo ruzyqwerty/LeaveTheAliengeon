@@ -176,11 +176,10 @@ class Level:
 
     def update(self, events):
         self.center_camera()
-        self.check_collision()
         self.update_rooms()
         self.check_portal()
         self.enemies_sprites.update(self.bullet_sprites, self.last_room)
-        self.player.update(events)
+        self.player.update(events, walls=self.wall_sprites)
         self.check_new_bullets()
         self.check_score()
         self.all_sprites.update()
