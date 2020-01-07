@@ -6,10 +6,10 @@ from settings import BLOCK_SIZE
 
 
 class Level:
-    def __init__(self, count, surface):
+    def __init__(self, count, surface, player=None):
         self.width = 0
         self.height = 0
-        self.player = None
+        self.player = player
         self.all_sprites = pygame.sprite.Group()
         self.all_state_sprites = pygame.sprite.Group()
         self.drawing_sprites_layer_1 = pygame.sprite.Group()
@@ -28,6 +28,8 @@ class Level:
         self.last_room = 0
         self.room_done = 0
         self.score = 0
+
+        self.isLevelEnd = False
 
         self.load_level(count)
 
@@ -131,8 +133,6 @@ class Level:
         self.optimize()
 
     def optimize(self):
-        # self.drawing_sprites_layer_1.clear(self.surface, self.surface)
-        # self.drawing_sprites_layer_2.clear(self.surface, self.surface)
         self.drawing_sprites_layer_1 = pygame.sprite.Group()
         self.drawing_sprites_layer_2 = pygame.sprite.Group()
         for sprite in self.all_state_sprites:
@@ -178,10 +178,15 @@ class Level:
         if self.score != self.player.score:
             self.score = self.player.score
 
+    def check_portal(self):
+        if pygame.sprite.collide_rect(self.player, self.teleport):
+            self.isLevelEnd = True
+
     def update(self, events):
         self.center_camera()
         self.check_collision()
         self.update_rooms()
+        self.check_portal()
         self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         self.player.update(events)
         self.check_new_bullets()
