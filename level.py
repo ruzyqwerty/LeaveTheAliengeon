@@ -180,7 +180,10 @@ class Level:
         self.center_camera()
         self.update_rooms()
         self.check_portal()
-        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
+        # TODO NEED FIX!!!
+        # self.enemies_sprites.update(self.bullet_sprites, self.last_room)
+        for enemy in self.enemies_sprites:
+            enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
         self.player.update(events, walls=self.wall_sprites)
         self.check_new_bullets()
         self.check_score()
