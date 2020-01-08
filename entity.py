@@ -265,8 +265,9 @@ class Gun:
                    mouse_pos=mouse_position,
                    group=self.bullet_sprites, player=self.player,
                    max_range=self.max_range, damage=self.damage)
-        else:
-            self.reload()
+        # TODO Reload on next click (for tests)
+        # else:
+        #     self.reload()
 
     # def on_hand(self):
     #     x, y = self.rect[:2]
