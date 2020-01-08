@@ -165,6 +165,8 @@ class Level:
         self.drawing_sprites_layer_1.draw(self.surface)
         self.drawing_sprites_layer_2.draw(self.surface)
         self.player.render(self.surface)
+        for enemy in self.enemies_sprites:
+            enemy.render(self.surface)
 
     def check_new_bullets(self):
         if not self.all_sprites.has(self.player.gun.bullet_sprites):
@@ -181,7 +183,7 @@ class Level:
         self.center_camera()
         self.check_collision()
         self.update_rooms()
-        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
+        self.enemies_sprites.update(self.bullet_sprites, self.last_room, self.player.rect[:2])
         self.player.update(events)
         self.check_new_bullets()
         self.check_score()
@@ -260,4 +262,6 @@ class Room:
             col, row = randint(1 + 2, self.width - 2 - 2), randint(1 + 2, self.height - 2 - 2)
             if (col, row) not in busy:
                 busy.add((col, row))
-                enemy = Enemy(col, row, offset=self.offset, room_number=self.number, groups=self.enemies_sprites)
+                shooting = bool(randint(0, 1))
+                enemy = Enemy(col, row, offset=self.offset, room_number=self.number, groups=self.enemies_sprites,
+                              shooting_enemy=shooting)
