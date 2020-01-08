@@ -1,5 +1,5 @@
 import pygame
-from settings import WINDOW_SIZE, FULLSCREEN, FPS
+from settings import WINDOW_SIZE, FULLSCREEN, FPS, ROOMS_COUNT
 
 
 def update_data():
@@ -30,7 +30,7 @@ all_sprites.add(cursor)
 
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
-level = Level(5, screen)
+level = Level(ROOMS_COUNT, screen)
 
 on_pause = False
 start_menu = True
@@ -67,6 +67,10 @@ while running:
             on_pause = False
         menu.render()
     else:
+        if level.isLevelEnd:
+            player = level.player
+            ROOMS_COUNT += 1
+            level = Level(ROOMS_COUNT, screen, player)
         level.update(events)
         update_data()
         interface.update()

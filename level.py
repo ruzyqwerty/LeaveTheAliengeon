@@ -6,10 +6,10 @@ from settings import BLOCK_SIZE
 
 
 class Level:
-    def __init__(self, count, surface):
+    def __init__(self, count, surface, player=None):
         self.width = 0
         self.height = 0
-        self.player = None
+        self.player = player
         self.all_sprites = pygame.sprite.Group()
         self.all_state_sprites = pygame.sprite.Group()
         self.drawing_sprites_layer_1 = pygame.sprite.Group()
@@ -28,6 +28,8 @@ class Level:
         self.last_room = 0
         self.room_done = 0
         self.score = 0
+
+        self.isLevelEnd = False
 
         self.load_level(count)
 
@@ -52,6 +54,7 @@ class Level:
             offset_y -= height * BLOCK_SIZE
             room = Room('room_bonus.txt', (offset_x, offset_y), 2)
             self.all_state_sprites.add(room.room_sprites)
+            self.wall_sprites.add(room.wall_sprites)
             self.all_sprites.add(room.room_sprites)
             return 1
         else:
@@ -60,6 +63,7 @@ class Level:
             offset_y += height * BLOCK_SIZE
             room = Room('room_bonus.txt', (offset_x, offset_y), 1)
             self.all_state_sprites.add(room.room_sprites)
+            self.wall_sprites.add(room.wall_sprites)
             self.all_sprites.add(room.room_sprites)
             return 2
 
@@ -110,16 +114,6 @@ class Level:
         offset_x += width * BLOCK_SIZE
         self.offset = offset_x, offset_y
 
-    def check_collision(self):
-        for sprite in self.wall_sprites:
-            if sprite.class_name == 'wall' and sprite.rect.colliderect(self.player.rect):
-                if sprite.rect.collidepoint(self.player.rect.midtop) and self.player.speed[1] < 0 \
-                        or sprite.rect.collidepoint(self.player.rect.midbottom) and self.player.speed[1] > 0:
-                    self.player.speed = self.player.speed[0], 0
-                if sprite.rect.collidepoint(self.player.rect.midleft) and self.player.speed[0] < 0 \
-                        or sprite.rect.collidepoint(self.player.rect.midright) and self.player.speed[0] > 0:
-                    self.player.speed = 0, self.player.speed[1]
-
     def center_camera(self):
         x = - (self.player.rect.x + self.player.rect.w // 2 - pygame.display.Info().current_w // 2)
         y = - (self.player.rect.y + self.player.rect.h // 2 - pygame.display.Info().current_h // 2)
@@ -131,8 +125,6 @@ class Level:
         self.optimize()
 
     def optimize(self):
-        # self.drawing_sprites_layer_1.clear(self.surface, self.surface)
-        # self.drawing_sprites_layer_2.clear(self.surface, self.surface)
         self.drawing_sprites_layer_1 = pygame.sprite.Group()
         self.drawing_sprites_layer_2 = pygame.sprite.Group()
         for sprite in self.all_state_sprites:
@@ -174,17 +166,22 @@ class Level:
             self.all_sprites.add(self.player.gun.bullet_sprites)
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
+        pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
 
     def check_score(self):
         if self.score != self.player.score:
             self.score = self.player.score
 
+    def check_portal(self):
+        if pygame.sprite.collide_rect(self.player, self.teleport):
+            self.isLevelEnd = True
+
     def update(self, events):
         self.center_camera()
-        self.check_collision()
         self.update_rooms()
-        self.enemies_sprites.update(self.bullet_sprites, self.last_room, self.player.rect[:2])
-        self.player.update(events)
+        self.check_portal()
+        self.enemies_sprites.update(self.bullet_sprites, self.last_room)
+        self.player.update(events, walls=self.wall_sprites)
         self.check_new_bullets()
         self.check_score()
         self.all_sprites.update()
