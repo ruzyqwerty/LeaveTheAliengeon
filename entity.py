@@ -1,5 +1,5 @@
 import pygame
-from texture import PLAYER, ENEMY, GUN, BULLET_PLAYER, BULLET_ENEMY
+from texture import PLAYER, ENEMY_WARRIOR, ENEMY_GUNNER, GUN, BULLET_PLAYER, PUNCH, BULLET_ENEMY
 from settings import BLOCK_SIZE, PLAYER_SPEED, ENEMY_SPEED, BULLET_SPEED
 from events import RELOAD_EVENT
 
@@ -21,7 +21,10 @@ class Body(pygame.sprite.Sprite):
         # mask (hit box) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
 
-        self.health = 100
+        if texture == PLAYER or texture == ENEMY_WARRIOR:
+            self.health = 100
+        elif texture == ENEMY_GUNNER:
+            self.health = 60
 
 
 class Player(Body):
@@ -108,14 +111,17 @@ class Enemy(Body):
     def __init__(self, x, y, offset=(0, 0), room_number=0, groups=None, shooting_enemy=False):
         if groups is None:
             groups = []
-        self.images = ENEMY
+        self.shooting_enemy = shooting_enemy
+        if self.shooting_enemy:
+            self.images = ENEMY_GUNNER
+        else:
+            self.images = ENEMY_WARRIOR
         self.speed = True
-        super().__init__(ENEMY, x=x, y=y, offset=offset, groups=groups)
-        self.standart_image = ENEMY[0]
-        self.hitted_image = ENEMY[1]
+        super().__init__(self.images, x=x, y=y, offset=offset, groups=groups)
+        self.standart_image = self.images[0]
+        self.hitted_image = self.images[1]
         self.room_number = room_number
         self.player = None
-        self.shooting_enemy = shooting_enemy
         if self.shooting_enemy:
             self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
         self.bullet_sprites = pygame.sprite.Group()
@@ -127,13 +133,24 @@ class Enemy(Body):
         self.timer = 0
 
     def move(self):
-        vector = self.player.rect[:22]
+        vector = self.player.rect[:2]
         kx = vector[0] - self.rect.x
         ky = vector[1] - self.rect.y
         c = (kx ** 2 + ky ** 2) ** 0.5
         if c > 0:
-            self.rect.x += round(kx / c * self.normal_speed)
-            self.rect.y += round(ky / c * self.normal_speed)
+            if self.shooting_enemy:
+                if c // BLOCK_SIZE < 5:
+                    self.rect.x -= round(kx / c * self.normal_speed)
+                    self.rect.y -= round(ky / c * self.normal_speed)
+                # enemy can move to player while distance with him > 8
+                elif c // BLOCK_SIZE > 8:
+                    self.rect.x += round(kx / c * self.normal_speed)
+                    self.rect.y += round(ky / c * self.normal_speed)
+                else:
+                    self.can_shoot = True
+            else:
+                self.rect.x += round(kx / c * self.normal_speed)
+                self.rect.y += round(ky / c * self.normal_speed)
 
     def update(self, *args):
         if self.play_hit:
@@ -173,8 +190,13 @@ class Enemy(Body):
         if self.shooting_enemy:
             self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
-    # def fire(self, mouse_positon):
-    #     self.gun.fire(mouse_positon)
+    def render(self, surface):
+        if self.shooting_enemy:
+            self.gun.render(surface)
+            pass
+        else:
+            # self.punch.render(surface)
+            pass
 
 
 class Gun:
@@ -207,7 +229,7 @@ class Gun:
             Bullet(x, y, BLOCK_SIZE,
                    colorkey=-1, mouse_pos=mouse_position,
                    group=self.bullet_sprites, player=self.player,
-                   max_range=777, damage=self.damage)
+                   max_range=self.max_range, damage=self.damage)
 
     def on_hand(self):
         x, y = self.rect[:2]
