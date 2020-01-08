@@ -191,8 +191,10 @@ class Enemy(Body):
             group = self.groups()[0].copy()
             group.remove(self)
             if walls:
+                s = self.speed
                 self.speed = self.speed_x, self.speed_y
                 self.check_collision(walls)
+                self.speed = s
             if not pygame.sprite.spritecollideany(self, group):
                 if not pygame.sprite.collide_rect(self, self.player):
                     self.move()
