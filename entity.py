@@ -63,10 +63,14 @@ class Player(Body):
         self.speed = speed_x, speed_y
 
     def check_collision(self, walls):
-        left_collision = pygame.Rect(self.rect.x, self.rect.y + self.rect.height // 4, self.rect.width // 3, self.rect.height // 2)
-        right_collision = pygame.Rect(self.rect.x + self.rect.width // 3 * 2, self.rect.y + self.rect.height // 3, self.rect.width // 3, self.rect.height // 2)
-        top_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y, self.rect.width // 2, self.rect.height // 3)
-        down_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y + self.rect.height // 3 * 2, self.rect.width // 2, self.rect.height // 3)
+        left_collision = pygame.Rect(self.rect.x, self.rect.y + self.rect.height // 4,
+                                     self.rect.width // 3, self.rect.height // 2)
+        right_collision = pygame.Rect(self.rect.x + self.rect.width // 3 * 2, self.rect.y + self.rect.height // 3,
+                                      self.rect.width // 3, self.rect.height // 2)
+        top_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y,
+                                    self.rect.width // 2, self.rect.height // 3)
+        down_collision = pygame.Rect(self.rect.x + self.rect.width // 4, self.rect.y + self.rect.height // 3 * 2,
+                                     self.rect.width // 2, self.rect.height // 3)
 
         collided_walls = pygame.sprite.spritecollide(self, walls, False)
 
@@ -124,11 +128,10 @@ class Enemy(Body):
         self.player = None
         if self.shooting_enemy:
             self.images = ENEMY_GUNNER
-
+            self.gun = Gun(x, y, BLOCK_SIZE, player=self)
         else:
             self.images = ENEMY_WARRIOR
 
-        super().__init__(self.images, x=x, y=y, offset=offset, groups=groups)
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
@@ -150,8 +153,6 @@ class Enemy(Body):
                 elif c // BLOCK_SIZE > 8:
                     self.rect.x += round(kx / c * self.normal_speed)
                     self.rect.y += round(ky / c * self.normal_speed)
-                else:
-                    self.can_shoot = True
             else:
                 self.rect.x += round(kx / c * self.normal_speed)
                 self.rect.y += round(ky / c * self.normal_speed)
@@ -225,9 +226,12 @@ class Gun:
         self.damage = 30
         self.standart_ammo = 15
         self.ammo = self.standart_ammo
-        self.reload_time = 3000
+        self.reload_time = 2000
 
     def reload(self):
+        if self.player.images == ENEMY_GUNNER:
+            # self
+            pass
         self.ammo = self.standart_ammo
 
     def fire(self, mouse_position):
@@ -235,9 +239,11 @@ class Gun:
         if self.ammo > 0:
             self.ammo -= 1
             Bullet(x, y, BLOCK_SIZE,
-                   colorkey=-1, mouse_pos=mouse_position,
+                   mouse_pos=mouse_position,
                    group=self.bullet_sprites, player=self.player,
                    max_range=self.max_range, damage=self.damage)
+        else:
+            self.reload()
 
     def on_hand(self):
         x, y = self.rect[:2]
@@ -261,7 +267,7 @@ class Gun:
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height=0,
-                 mouse_pos=(0, 0), colorkey=None,
+                 mouse_pos=(0, 0),
                  group=None, player=None,
                  max_range=None, damage=0):
         super().__init__(group)
@@ -310,7 +316,7 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Punch(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height=0, colorkey=None, player=None, damage=0):
+    def __init__(self, x, y, width, height=0, player=None, damage=0):
         super().__init__()
         if height == 0:
             height = width
