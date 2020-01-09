@@ -69,8 +69,10 @@ while running:
     else:
         if level.isLevelEnd:
             player = level.player
+            room_done = level.room_done
             ROOMS_COUNT += 1
             level = Level(ROOMS_COUNT, screen, player)
+            level.room_done = room_done
         level.update(events)
         update_data()
         interface.update()

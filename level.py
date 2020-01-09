@@ -74,7 +74,11 @@ class Level:
         self.all_state_sprites.add(room.room_sprites)
         self.non_active_sprites.add(room.block_walls)
         if room.player is not None:
-            self.player = room.player
+            if self.player is None:
+                self.player = room.player
+            else:
+                self.player.rect.x = room.player.rect.x
+                self.player.rect.y = room.player.rect.y
         elif room.teleport is not None:
             self.teleport = room.teleport
             self.all_dynamic_sprites.add(self.teleport)
