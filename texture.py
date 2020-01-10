@@ -44,3 +44,8 @@ AIM = [load_image('aim_1.png', (0, 255, 0))]
 
 BULLET_PLAYER = [load_image('bullet_p_1.png', (0, 255, 0)), load_image('bullet_p_2.png', (0, 255, 0))]
 BULLET_ENEMY = [load_image('bullet_e_1.png', (0, 255, 0)), load_image('bullet_e_2.png', (0, 255, 0))]
+
+BONUSES = {
+    'heart': load_image('bonus_coin_1.png', -1),
+    'coin': load_image('bonus_coin_1.png', -1)
+}

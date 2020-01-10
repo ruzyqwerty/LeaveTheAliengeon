@@ -1,7 +1,7 @@
 import pygame
-from objects import Object
+from objects import Object, Coin, Heart
 from entity import Player, Enemy
-from random import randint
+from random import randint, choice
 from settings import BLOCK_SIZE
 
 
@@ -18,6 +18,7 @@ class Level:
         self.bullet_sprites = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
         self.enemies_sprites = pygame.sprite.Group()
+        self.bonus_sprites = pygame.sprite.Group()
         self.is_fight = False
         self.teleport = None
         self.non_active_sprites = pygame.sprite.Group()
@@ -48,11 +49,15 @@ class Level:
     def load_bonus_room(self, width, height):
         offset_x, offset_y = self.offset
         where_is_exit = randint(1, 10)
+        bonuses = ['coin', 'heart']
+        bonus = choice(bonuses)
         if where_is_exit % 2 == 0:
             offset = self.load_vertical_corridor(width, height, 1)
             offset_y -= offset
             offset_y -= height * BLOCK_SIZE
             room = Room('room_bonus.txt', (offset_x, offset_y), 2)
+            width, height = room.width, room.height
+            self.load_bonus(bonus, width // 2, height // 2, (offset_x, offset_y))
             self.all_state_sprites.add(room.room_sprites)
             self.wall_sprites.add(room.wall_sprites)
             self.all_sprites.add(room.room_sprites)
@@ -62,10 +67,20 @@ class Level:
             offset_y += offset
             offset_y += height * BLOCK_SIZE
             room = Room('room_bonus.txt', (offset_x, offset_y), 1)
+            width, height = room.width, room.height
+            self.load_bonus(bonus, width // 2, height // 2, (offset_x, offset_y))
             self.all_state_sprites.add(room.room_sprites)
             self.wall_sprites.add(room.wall_sprites)
             self.all_sprites.add(room.room_sprites)
             return 2
+
+    def load_bonus(self, name, x, y, offset):
+        if name == 'coin':
+            bonus = Coin(self.bonus_sprites, self.all_state_sprites, self.all_sprites, x=x,
+                 y=y, offset=offset)
+        elif name == 'heart':
+            bonus = Heart(self.bonus_sprites, self.all_state_sprites, self.all_sprites, x=x,
+                 y=y, offset=offset)
 
     def load_room(self, name, passage=None, number=0):
         room = Room(name, self.offset, passage, number=number)
@@ -140,6 +155,9 @@ class Level:
         for sprite in self.enemies_sprites:
             if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
                 self.drawing_sprites_layer_2.add(sprite)
+        for sprite in self.bonus_sprites:
+            if sprite.rect.colliderect((0, 0, pygame.display.Info().current_w, pygame.display.Info().current_h)):
+                self.drawing_sprites_layer_2.add(sprite)
 
     def update_rooms(self):
         if self.last_room + 1 < len(self.rooms):
@@ -180,10 +198,22 @@ class Level:
         if pygame.sprite.collide_rect(self.player, self.teleport):
             self.isLevelEnd = True
 
+    def check_bonus(self):
+        if pygame.sprite.spritecollideany(self.player, self.bonus_sprites, False):
+            bonus = pygame.sprite.spritecollideany(self.player, self.bonus_sprites, False)
+            item, value = bonus.pick_up()
+            if item == 'score':
+                self.player.score += value
+            elif item == 'hp':
+                self.player.health += value
+            bonus.kill()
+
+
     def update(self, events):
         self.center_camera()
         self.update_rooms()
         self.check_portal()
+        self.check_bonus()
         # TODO NEED FIX!!!
         # self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         for enemy in self.enemies_sprites:
