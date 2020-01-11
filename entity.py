@@ -116,7 +116,7 @@ class Enemy(Body):
     def __init__(self, x, y, offset=(0, 0), room_number=0, groups=None, shooting_enemy=False):
         if groups is None:
             groups = []
-        self.shooting_enemy = shooting_enemy
+        self.shooting_enemy = False
         if self.shooting_enemy:
             self.images = ENEMY_GUNNER
         else:
@@ -134,36 +134,54 @@ class Enemy(Body):
             self.gun = Gun(x, y, BLOCK_SIZE, player=self)
         else:
             self.images = ENEMY_WARRIOR
-
+            self.punch = pygame.sprite.Sprite()
+            self.punch.image = PUNCH[0]
+            self.punch.rect = self.punch.image.get_rect()
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
         self.speed_x = 0
         self.speed_y = 0
         self.speed = self.speed_x, self.speed_y
+
+        self.c = 0
         self.play_hit = False
         self.timer = 0
+        self.play_attack = False
+        self.time_attack = 0
+        self.hit = False
+
+    def attack(self):
+        x, y = self.player.rect[:2]
+        kx = x - self.rect.x
+        ky = y - self.rect.y
+        if self.c != 0:
+            if kx != 0:
+                self.punch.rect.x = self.rect.x + round(kx / self.c * BLOCK_SIZE)
+            if ky != 0:
+                self.punch.rect.y = self.rect.y + round(ky / self.c * BLOCK_SIZE)
+        self.hit = True
 
     def move(self):
         vector = self.player.rect[:2]
         kx = vector[0] - self.rect.x
         ky = vector[1] - self.rect.y
-        c = (kx ** 2 + ky ** 2) ** 0.5
-        if c > 0:
+        self.c = (kx ** 2 + ky ** 2) ** 0.5
+        if self.c > 0:
             if self.shooting_enemy:
-                if c // BLOCK_SIZE < 5:
-                    self.speed_x = -round(kx / c * self.normal_speed)
-                    self.speed_y = -round(ky / c * self.normal_speed)
+                if self.c // BLOCK_SIZE < 5:
+                    self.speed_x = -round(kx / self.c * self.normal_speed)
+                    self.speed_y = -round(ky / self.c * self.normal_speed)
                 # enemy can move to player while distance with him > 8
-                elif c // BLOCK_SIZE > 8:
-                    self.speed_x = round(kx / c * self.normal_speed)
-                    self.speed_y = round(ky / c * self.normal_speed)
+                elif self.c // BLOCK_SIZE > 8:
+                    self.speed_x = round(kx / self.c * self.normal_speed)
+                    self.speed_y = round(ky / self.c * self.normal_speed)
                 else:
                     self.speed_x = 0
                     self.speed_y = 0
             else:
-                self.speed_x = round(kx / c * self.normal_speed)
-                self.speed_y = round(ky / c * self.normal_speed)
+                self.speed_x = round(kx / self.c * self.normal_speed)
+                self.speed_y = round(ky / self.c * self.normal_speed)
         if self.speed_x > 0:
             self.image = self.image_right
         elif self.speed_x < 0:
@@ -183,6 +201,13 @@ class Enemy(Body):
                 self.play_hit = False
                 self.timer = 0
                 self.image = self.standart_image
+        if self.play_attack:
+            self.time_attack += 1
+            # TODO
+            if self.time_attack == 50:
+                self.attack()
+                self.time_attack = 0
+                self.play_attack = False
         bullets = None
         room = None
         if args:
@@ -213,6 +238,10 @@ class Enemy(Body):
                     self.play_hit = True
                     self.timer = 0
                     self.health -= 20
+                    # TODO Sound of hit
+        if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 1.5) and\
+                (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 1.5):
+            self.play_attack = True
         if self.health <= 0:
             self.player.score += 10
             self.kill()
@@ -228,7 +257,13 @@ class Enemy(Body):
             self.gun.render(surface)
             pass
         else:
-            # self.punch.render(surface)
+            # TODO
+            if self.hit:
+                surface.blit(self.punch.image, (self.punch.rect.x, self.punch.rect.y))
+                self.timer += 1
+                if self.timer == 3:
+                    self.hit = False
+                    self.timer = 0
             pass
 
 
@@ -339,42 +374,4 @@ class Bullet(pygame.sprite.Sprite):
                     - self.player.rect.y + self.player.rect.height // 2
                     - BLOCK_SIZE) ** 2
         if distance >= self.max_range ** 2:
-            self.kill()
-
-
-class Punch(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height=0, player=None, damage=0):
-        super().__init__()
-        if height == 0:
-            height = width
-        self.player = player
-        self.damage = damage
-        self.kadr = 0
-        self.images = PUNCH
-        self.image = self.images[0]
-        self.rect = self.image.get_rect()
-        # mask (hitbox) of punch sprite
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect.x += x
-        self.rect.y += y
-
-    def check_hit(self, object_rect):
-        if self.rect.colliderect(object_rect):
-            return True
-        return False
-
-    def update(self, player_pos=(0, 0)):
-        vector = player_pos
-        kx = vector[0] - self.rect.x
-        ky = vector[1] - self.rect.y
-        self.rect.x = vector[0] + int(kx / (kx + ky))
-        self.rect.y = vector[1] + int(ky / (kx + ky))
-        # distance = (self.rect.x + self.rect.width // 2
-        #             - self.player.rect.x + self.player.rect.width // 2
-        #             - BLOCK_SIZE) ** 2 + \
-        #            (self.rect.y + self.rect.height // 2
-        #             - self.player.rect.y + self.player.rect.height // 2
-        #             - BLOCK_SIZE) ** 2
-        self.kadr += 1
-        if self.kadr > 3:
             self.kill()
