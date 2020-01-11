@@ -419,7 +419,6 @@ class Gun:
     def render(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
         self.bullet_sprites.draw(surface)
-        print(self.bullet_sprites)
 
 
 class Bullet(pygame.sprite.Sprite):
