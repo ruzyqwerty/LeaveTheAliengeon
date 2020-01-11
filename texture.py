@@ -36,7 +36,7 @@ PLAYER = [load_image('player_idle_1.png', -1), load_image('player_idle_2.png', -
 
 ENEMY_WARRIOR = [load_image('enemy_warrior_1.png', -1), load_image('enemy_warrior_1_hitted.png', -1)]
 ENEMY_GUNNER = [load_image('enemy_gunner_1.png', -1), load_image('enemy_gunner_1_hitted.png', -1)]
-PUNCH = [load_image('punch_1.png'), -1]
+PUNCH = [load_image('punch_1.png', -1)]
 
 GUN = [load_image('gun_rifle.png', -1)]
 
