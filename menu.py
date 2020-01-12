@@ -1,4 +1,5 @@
 import pygame
+from settings import FULLSCREEN
 
 
 class Menu:
@@ -6,69 +7,124 @@ class Menu:
         self.surface = surface
         self.events = []
 
-        self.buttons_sprite = pygame.sprite.Group()
-        self.btn_play = Button('play', groups=(self.buttons_sprite))
-        self.btn_settings = Button('settings', groups=(self.buttons_sprite))
-        self.btn_exit = Button('exit', groups=(self.buttons_sprite))
-        self.btn_continue = Button('continue', groups=[])
-        self.btn_new_game = Button('new game', groups=[])
+        self.buttons_sprites = pygame.sprite.Group()
+        self.setting_sprites = pygame.sprite.Group()
 
+        self.btn_play = Button(self.buttons_sprites, name='Play')
+        self.btn_settings = Button(self.buttons_sprites, name='Settings')
+        self.btn_exit = Button(self.buttons_sprites, name='Exit')
+        self.btn_continue = Button(name='Continue')
+
+        self.settings = Settings()
+        self.setting_sprites.add(self.settings.buttons_sprites)
+
+        self.settings_on = False
         self.game_on_pause = False
 
     def render(self):
-        self.buttons_sprite.draw(self.surface)
+        if not self.settings_on:
+            self.buttons_sprites.draw(self.surface)
+        else:
+            self.setting_sprites.draw(self.surface)
+
+    def update(self, events):
+        if not self.settings_on:
+            types = list(map(lambda x: x.type, events))
+            if pygame.MOUSEBUTTONDOWN in types:
+                if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
+                    x, y = events[types.index(pygame.MOUSEBUTTONDOWN)].pos
+                    if not self.game_on_pause and self.btn_play.rect.collidepoint(x, y):
+                       self.events.append('play')
+                       self.btn_play.change_name('New game')
+                       self.game_on_pause = True
+                       self.buttons_sprites.add(self.btn_continue)
+                    elif self.game_on_pause:
+                        if self.btn_continue.rect.collidepoint(x, y):
+                            self.events.append('play')
+                        elif self.btn_play.rect.collidepoint(x, y):
+                            self.events.append('new game')
+                    if self.btn_settings.rect.collidepoint(x, y):
+                        self.settings_on = True
+                    elif self.btn_exit.rect.collidepoint(x, y):
+                        self.events.append('exit')
+        else:
+            if self.settings.update(events):
+                self.settings_on = False
+
+
+class Settings:
+    def __init__(self):
+        self.events = []
+
+        self.buttons_sprites = pygame.sprite.Group()
+
+        self.btn_settings_fullscreen = Button(self.buttons_sprites, name='Fullscreen - On')
+        self.btn_back = Button(self.buttons_sprites, name='Back')
+        self.fullscreen = FULLSCREEN
+
+        if self.fullscreen:
+            self.btn_settings_fullscreen.change_name('Fullscreen - On')
+        else:
+            self.btn_settings_fullscreen.change_name('Fullscreen - Off')
 
     def update(self, events):
         types = list(map(lambda x: x.type, events))
         if pygame.MOUSEBUTTONDOWN in types:
             if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
                 x, y = events[types.index(pygame.MOUSEBUTTONDOWN)].pos
-                if not self.game_on_pause and self.btn_play.rect.collidepoint(x, y):
-                   self.events.append('play')
-                   self.btn_play.kill()
-                   self.game_on_pause = True
-                   self.buttons_sprite.add(self.btn_continue)
-                   self.buttons_sprite.add(self.btn_new_game)
-                elif self.game_on_pause:
-                    if self.btn_continue.rect.collidepoint(x, y):
-                        self.events.append('play')
-                    elif self.btn_new_game.rect.collidepoint(x, y):
-                        self.events.append('new game')
-                if self.btn_settings.rect.collidepoint(x, y):
-                    self.events.append('settings')
-                elif self.btn_exit.rect.collidepoint(x, y):
-                    self.events.append('exit')
+                if self.btn_settings_fullscreen.rect.collidepoint(x, y):
+                    self.fullscreen = not self.fullscreen
+                    if self.fullscreen:
+                        self.btn_settings_fullscreen.change_name('Fullscreen - On')
+                    else:
+                        self.btn_settings_fullscreen.change_name('Fullscreen - Off')
+                elif self.btn_back.rect.collidepoint(x, y):
+                    return True
+        return False
 
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, name, groups=None):
+    def __init__(self, *groups, name=None):
         super().__init__(groups)
-        # self.image = BUTTONS[name]
-        self.image = self.create(name)
-        self.image = pygame.transform.scale(self.image, (500, 150))
-        self.rect = self.image.get_rect()
-        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
+        self.text = None
 
-        self.rect.x += (screen_width // 2 - self.rect.width // 2)
-        if name == 'continue':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height * 2
-        elif name == 'play' or name == 'new game':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height
-        elif name == 'settings':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2)
-        elif name == 'exit':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2) + self.rect.height
+        self.change_name(name)
 
-    def create(self, text):
-        screen = pygame.Surface((1200, 400))
+    def create(self):
+        width, height = 1200, 250
+        screen = pygame.Surface((width, height))
         screen.fill((255, 255, 255))
-        font = pygame.font.Font(None, 350)
-        text = font.render(text, 1, (255, 150, 0))
-        text_x = 1200 // 2 - text.get_width() // 2
-        text_y = 400 // 2 - text.get_height() // 2
+        font = pygame.font.Font(None, 210)
+        text = font.render(self.text, 1, (255, 200, 0))
+        text_x = width // 2 - text.get_width() // 2
+        text_y = height // 2 - text.get_height() // 2
         text_w = text.get_width()
         text_h = text.get_height()
         screen.blit(text, (text_x, text_y))
-        pygame.draw.rect(screen, (0, 255, 0), (text_x - 10, text_y - 10,
-                                               text_w + 20, text_h + 20), 10)
+        rect_width = 30
+        pygame.draw.rect(screen, (255, 150, 150), (text_x - rect_width, text_y - rect_width,
+                                               text_w + rect_width * 2, text_h + rect_width * 2), rect_width)
         return screen
+
+    def correct_buttons(self):
+        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
+
+        self.rect.x += (screen_width // 2 - self.rect.width // 2)
+        if self.text.lower() == 'continue':
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height * 1.5
+        elif self.text.lower() == 'play' or self.text.lower() == 'new game' or self.text.lower().startswith('fullscreen'):
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height * 0.5
+        elif self.text.lower() == 'settings':
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) + self.rect.height - self.rect.height * 0.5
+        elif self.text.lower() == 'exit' or self.text.lower() == 'back':
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) + self.rect.height * 2 - self.rect.height * 0.5
+
+    def change_name(self, name):
+        if name != self.text:
+            self.text = name
+            self.image = self.create()
+        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
+        self.image = pygame.transform.scale(self.image, (int(screen_width * 0.75), int(screen_height * 0.25)))
+        self.rect = self.image.get_rect()
+
+        self.correct_buttons()
