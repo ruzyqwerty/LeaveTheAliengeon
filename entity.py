@@ -10,6 +10,7 @@ class Body(pygame.sprite.Sprite):
         if groups is None:
             groups = []
         super().__init__(groups)
+        self.type = None
         self.speed = (0, 0)
         self.normal_speed = None
         self.images = texture
@@ -117,10 +118,10 @@ class EnemyMelee(Body):
     def __init__(self, x, y, offset=(0, 0), room_number=0, groups=None):
         if groups is None:
             groups = []
-
         self.images = ENEMY_WARRIOR
         # self.speed = True
         super().__init__(self.images, x=x, y=y, offset=offset, groups=groups)
+        self.type = 'melee'
         self.image_left = pygame.transform.flip(self.images[0], True, False)
         self.image_right = self.images[0]
         self.standart_image = self.images[0]
@@ -152,10 +153,10 @@ class EnemyMelee(Body):
         self.punch.mask = pygame.mask.from_surface(self.punch.image)
         if self.c != 0:
             if kx != 0:
-                self.punch.rect.x = self.rect.x + round(kx / self.c * BLOCK_SIZE)\
+                self.punch.rect.x = self.rect.x + round(kx / self.c * BLOCK_SIZE) \
                                     + randint(-BLOCK_SIZE / 5, BLOCK_SIZE / 5)
             if ky != 0:
-                self.punch.rect.y = self.rect.y + round(ky / self.c * BLOCK_SIZE)\
+                self.punch.rect.y = self.rect.y + round(ky / self.c * BLOCK_SIZE) \
                                     + randint(-BLOCK_SIZE / 5, BLOCK_SIZE / 5)
         self.hit = True
 
@@ -194,8 +195,7 @@ class EnemyMelee(Body):
                     self.image = self.standart_image
             if self.play_attack:
                 self.time_attack += 1
-                # TODO
-                if self.time_attack == 30:
+                if self.time_attack == 25:
                     self.play_attack = False
                     self.time_attack = 0
                     self.attack()
@@ -230,7 +230,6 @@ class EnemyMelee(Body):
                 self.play_attack = True
             if self.hit and pygame.sprite.collide_mask(self.punch, self.player):
                 self.punch.kill()
-                self.hit = False
                 self.player.health -= 10
             if self.health <= 0:
                 self.player.score += 10
@@ -240,7 +239,7 @@ class EnemyMelee(Body):
         if self.hit:
             surface.blit(self.punch.image, (self.punch.rect.x, self.punch.rect.y))
             self.timer += 1
-            if self.timer == 3:
+            if self.timer == 1:
                 self.hit = False
                 self.timer = 0
 
@@ -250,31 +249,29 @@ class EnemyGunner(Body):
         if groups is None:
             groups = []
         self.images = ENEMY_GUNNER
-        # self.speed = True
         super().__init__(self.images, x=x, y=y, offset=offset, groups=groups)
+        self.type = 'gunner'
         self.image_left = pygame.transform.flip(self.images[0], True, False)
         self.image_right = self.images[0]
         self.standart_image = self.images[0]
         self.hitted_image = self.images[1]
         self.room_number = room_number
         self.player = None
-
         self.images = ENEMY_GUNNER
         self.gun = Gun(x, y, BLOCK_SIZE, player=self)
-
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
         self.speed_x = 0
         self.speed_y = 0
         self.speed = self.speed_x, self.speed_y
-
         self.c = 0
         self.play_hit = False
         self.timer = 0
         self.play_attack = False
         self.time_attack = 0
         self.hit = False
+        self.action = None
 
     def attack(self):
         if self.player:
@@ -316,13 +313,6 @@ class EnemyGunner(Body):
                 self.play_hit = False
                 self.timer = 0
                 self.image = self.standart_image
-        # if self.play_attack:
-        #     self.time_attack += 1
-        #     # TODO
-        #     if self.time_attack == 50:
-        #         self.attack()
-        #         self.time_attack = 0
-        #         self.play_attack = False
         bullets = None
         room = None
         if args:
@@ -354,10 +344,21 @@ class EnemyGunner(Body):
                     self.timer = 0
                     self.health -= 20
                     # TODO Sound of hit
-        # TODO NEED FIX!!!
-        # if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 10) and \
-        #         (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 10):
-        #     self.attack()
+            # TODO NEED FIX!!!
+            # if self.gun.ammo == 0:
+            #     if not self.action and self.gun.ammo != self.gun.standart_ammo:
+            #         pygame.time.set_timer(RELOAD_EVENT, self.gun.reload_time)
+            #         self.action = RELOAD_EVENT
+            # if self.action:
+            #     pygame.time.set_timer(RELOAD_EVENT, 0)
+            #     self.action = None
+            #     self.gun.reload()
+            self.time_attack += 1
+            if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 10) and \
+                    (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 10) and\
+                    not self.action and self.time_attack >= 25:
+                self.attack()
+                self.time_attack = 0
         if self.health <= 0:
             self.player.score += 10
             self.kill()
@@ -400,13 +401,8 @@ class Gun:
                    mouse_pos=mouse_position,
                    group=self.bullet_sprites, player=self.player,
                    max_range=self.max_range, damage=self.damage)
-        # TODO Reload on next click (for tests)
-        # else:
-        #     self.reload()
-
-    # def on_hand(self):
-    #     x, y = self.rect[:2]
-    #     return x, y
+        elif self.player.images == ENEMY_GUNNER:
+            self.reload()
 
     def update(self, player_x, player_y, right=True):
         self.rect.x = player_x
@@ -432,11 +428,14 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__(group)
         if height == 0:
             height = width
-        self.all_groups = [group]
+        self.all_groups = group
         self.player = player
         self.damage = damage
-        self.speed = BULLET_SPEED * width / 10
-        # self.speed = BULLET_SPEED
+
+        if self.player.type == 'gunner':
+            self.speed = BULLET_SPEED * width / 25
+        else:
+            self.speed = BULLET_SPEED * width / 10
         if self.player.images == PLAYER:
             self.images = BULLET_PLAYER
         else:
@@ -449,16 +448,11 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += x
         self.rect.y += y
         self.vector = mouse_pos
-        self.kx = self.vector[0] - self.rect.x
-        self.ky = self.vector[1] - self.rect.y
+        self.kx = self.vector[0] - self.rect.x + randint(-20, 20)
+        self.ky = self.vector[1] - self.rect.y + randint(-20, 20)
         self.c = (self.kx ** 2 + self.ky ** 2) ** 0.5
         self.change_texture = 0
         self.max_range = max_range
-
-    def check_hit(self, object_rect):
-        if self.rect.colliderect(object_rect):
-            return True
-        return False
 
     def update(self):
         self.rect.x += int(self.kx / self.c * self.speed)
