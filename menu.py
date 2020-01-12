@@ -2,6 +2,14 @@ import pygame
 from settings import FULLSCREEN
 
 
+LABEL_WIDTH, LABEL_HEIGHT = 1200, 250
+LABEL_BACKGROUND = (255, 255, 255)
+LABEL_FONT_SIZE = 210
+LABEL_FONT_COLOR = (255, 200, 0)
+LABEL_FRAME_COLOR = (255, 150, 150)
+LABEL_FRAME_WIDTH = 30
+
+
 class Menu:
     def __init__(self, surface):
         self.surface = surface
@@ -91,19 +99,17 @@ class Button(pygame.sprite.Sprite):
         self.change_name(name)
 
     def create(self):
-        width, height = 1200, 250
-        screen = pygame.Surface((width, height))
-        screen.fill((255, 255, 255))
-        font = pygame.font.Font(None, 210)
-        text = font.render(self.text, 1, (255, 200, 0))
-        text_x = width // 2 - text.get_width() // 2
-        text_y = height // 2 - text.get_height() // 2
+        screen = pygame.Surface((LABEL_WIDTH, LABEL_HEIGHT))
+        screen.fill(LABEL_BACKGROUND)
+        font = pygame.font.Font(None, LABEL_FONT_SIZE)
+        text = font.render(self.text, 1, LABEL_FONT_COLOR)
+        text_x = LABEL_WIDTH // 2 - text.get_width() // 2
+        text_y = LABEL_HEIGHT // 2 - text.get_height() // 2
         text_w = text.get_width()
         text_h = text.get_height()
         screen.blit(text, (text_x, text_y))
         rect_width = 30
-        pygame.draw.rect(screen, (255, 150, 150), (text_x - rect_width, text_y - rect_width,
-                                               text_w + rect_width * 2, text_h + rect_width * 2), rect_width)
+        pygame.draw.rect(screen, LABEL_FRAME_COLOR, (text_x - LABEL_FRAME_WIDTH, text_y - LABEL_FRAME_WIDTH, text_w + LABEL_FRAME_WIDTH * 2, text_h + LABEL_FRAME_WIDTH * 2), LABEL_FRAME_WIDTH)
         return screen
 
     def correct_buttons(self):
