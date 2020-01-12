@@ -35,26 +35,23 @@ class Label(pygame.sprite.Sprite):
     def __init__(self, text, *groups):
         super().__init__(groups)
         self.text = text
-        self.last_text = text
-        self.image = self.create(text)
+        self.image = self.create()
         self.rect = self.image.get_rect()
 
-    def create(self, text):
+    def create(self):
         screen = pygame.Surface((LABEL_WIDTH, LABEL_HEIGHT))
         screen.fill(LABEL_BACKGROUND)
         font = pygame.font.Font(None, LABEL_FONT_SIZE)
-        text = font.render(text, 1, LABEL_FONT_COLOR)
+        text = font.render(self.text, 1, LABEL_FONT_COLOR)
         text_x = LABEL_WIDTH // 2 - text.get_width() // 2
         text_y = LABEL_HEIGHT // 2 - text.get_height() // 2
         screen.blit(text, (text_x, text_y))
         pygame.draw.rect(screen, LABEL_FRAME_COLOR, (0, 0, LABEL_WIDTH, LABEL_HEIGHT), LABEL_FRAME_WIDTH)
-        # colorkey = screen.get_at((0, 0))
-        # screen.set_colorkey(colorkey)
-        # screen = screen.convert_alpha()
         return screen
 
-    def update(self, *args):
-        if self.text != self.last_text:
-            self.image = self.create(self.text)
+    def change_text(self, text):
+        if self.text != text:
+            self.text = text
+            self.image = self.create()
             self.rect = self.image.get_rect()
-            self.last_text = self.text
+
