@@ -32,6 +32,7 @@ class Level:
         self.score = 0
 
         self.isLevelEnd = False
+        self.needRestart = False
 
         self.load_level(count)
 
@@ -210,19 +211,20 @@ class Level:
                 self.player.health += value
             bonus.kill()
 
+    def check_player(self):
+        if self.player.health <= 0:
+            self.needRestart = True
 
     def update(self, events):
         self.center_camera()
         self.update_rooms()
         self.check_portal()
         self.check_bonus()
+        self.check_player()
         # TODO NEED FIX!!!
-        # self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         for enemy in self.enemies_sprites:
             enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
-            # enemy.attack()
-        for punch in self.punch_sprites:
-            punch.update()
+        self.punch_sprites.update()
         self.player.update(events, walls=self.wall_sprites)
         self.check_new_bullets()
         self.check_score()

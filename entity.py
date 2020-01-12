@@ -84,7 +84,7 @@ class Player(Body):
         else:
             speed_y = 0
         if keys[pygame.K_r]:
-            if not self.action:
+            if not self.action and self.gun.ammo != self.gun.standart_ammo:
                 pygame.time.set_timer(RELOAD_EVENT, self.gun.reload_time)
                 self.action = RELOAD_EVENT
                 # TODO Reload sound
@@ -128,10 +128,6 @@ class EnemyMelee(Body):
         self.room_number = room_number
         self.player = None
 
-        self.punch = pygame.sprite.Sprite()
-        self.punch.image = PUNCH[0]
-        self.punch.rect = self.punch.image.get_rect()
-        self.punch.mask = pygame.mask.from_surface(self.punch.image)
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
@@ -150,6 +146,10 @@ class EnemyMelee(Body):
         x, y = self.player.rect[:2]
         kx = x - self.rect.x
         ky = y - self.rect.y
+        self.punch = pygame.sprite.Sprite()
+        self.punch.image = PUNCH[0]
+        self.punch.rect = self.punch.image.get_rect()
+        self.punch.mask = pygame.mask.from_surface(self.punch.image)
         if self.c != 0:
             if kx != 0:
                 self.punch.rect.x = self.rect.x + round(kx / self.c * BLOCK_SIZE)\
@@ -160,44 +160,45 @@ class EnemyMelee(Body):
         self.hit = True
 
     def move(self):
-        vector = self.player.rect[:2]
-        kx = vector[0] - self.rect.x
-        ky = vector[1] - self.rect.y
-        self.c = (kx ** 2 + ky ** 2) ** 0.5
-        if self.c > 0:
-            self.speed_x = round(kx / self.c * self.normal_speed)
-            self.speed_y = round(ky / self.c * self.normal_speed)
-        if self.speed_x > 0:
-            self.image = self.image_right
-        elif self.speed_x < 0:
-            self.image = self.image_left
-        else:
-            if kx < 0:
-                self.image = self.image_left
-            elif kx > 0:
+        if not self.play_attack:
+            vector = self.player.rect[:2]
+            kx = vector[0] - self.rect.x
+            ky = vector[1] - self.rect.y
+            self.c = (kx ** 2 + ky ** 2) ** 0.5
+            if self.c > 0:
+                self.speed_x = round(kx / self.c * self.normal_speed)
+                self.speed_y = round(ky / self.c * self.normal_speed)
+            if self.speed_x > 0:
                 self.image = self.image_right
-        self.rect.x += self.speed_x
-        self.rect.y += self.speed_y
+            elif self.speed_x < 0:
+                self.image = self.image_left
+            else:
+                if kx < 0:
+                    self.image = self.image_left
+                elif kx > 0:
+                    self.image = self.image_right
+            self.rect.x += self.speed_x
+            self.rect.y += self.speed_y
 
     def update(self, *args, walls=None):
-        if self.play_hit:
-            self.timer += 1
-            if self.timer >= 20:
-                self.play_hit = False
-                self.timer = 0
-                self.image = self.standart_image
-        if self.play_attack:
-            self.time_attack += 1
-            # TODO
-            if self.time_attack == 50:
-                self.attack()
-                self.time_attack = 0
-                self.play_attack = False
         bullets = None
         room = None
         if args:
             bullets, room = args
         if room == self.room_number:
+            if self.play_hit:
+                self.timer += 1
+                if self.timer >= 30:
+                    self.play_hit = False
+                    self.timer = 0
+                    self.image = self.standart_image
+            if self.play_attack:
+                self.time_attack += 1
+                # TODO
+                if self.time_attack == 30:
+                    self.play_attack = False
+                    self.time_attack = 0
+                    self.attack()
             group = self.groups()[0].copy()
             group.remove(self)
             if walls:
@@ -224,14 +225,16 @@ class EnemyMelee(Body):
                     self.timer = 0
                     self.health -= 20
                     # TODO Sound of hit
-        if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 1.5) and \
-                (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 1.5):
-            self.play_attack = True
-        if pygame.sprite.collide_mask(self.punch, self.player) and self.hit:
-            self.player.health -= 1
-        if self.health <= 0:
-            self.player.score += 10
-            self.kill()
+            if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 1.5) and \
+                    (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 1.5):
+                self.play_attack = True
+            if self.hit and pygame.sprite.collide_mask(self.punch, self.player):
+                self.punch.kill()
+                self.hit = False
+                self.player.health -= 10
+            if self.health <= 0:
+                self.player.score += 10
+                self.kill()
 
     def render(self, surface):
         if self.hit:
