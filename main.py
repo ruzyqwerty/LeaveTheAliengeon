@@ -69,6 +69,7 @@ while running:
                 sprite.change_name(sprite.text)
             for sprite in menu.setting_sprites:
                 sprite.change_name(sprite.text)
+            interface.correct_labels()
             menu.surface = screen
             interface.surface = screen
             level.surface = screen

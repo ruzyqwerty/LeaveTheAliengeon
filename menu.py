@@ -108,7 +108,6 @@ class Button(pygame.sprite.Sprite):
         text_w = text.get_width()
         text_h = text.get_height()
         screen.blit(text, (text_x, text_y))
-        rect_width = 30
         pygame.draw.rect(screen, LABEL_FRAME_COLOR, (text_x - LABEL_FRAME_WIDTH, text_y - LABEL_FRAME_WIDTH, text_w + LABEL_FRAME_WIDTH * 2, text_h + LABEL_FRAME_WIDTH * 2), LABEL_FRAME_WIDTH)
         return screen
 
