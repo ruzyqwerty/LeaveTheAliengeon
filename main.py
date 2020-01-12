@@ -82,6 +82,7 @@ while running:
             on_pause = False
         if 'new game' in menu.events:
             menu.events.remove('new game')
+            rooms_count = ROOMS_COUNT
             level = Level(rooms_count, screen)
             on_pause = False
         menu.render()
@@ -92,6 +93,9 @@ while running:
             rooms_count += 1
             level = Level(rooms_count, screen, player)
             level.room_done = room_done
+        if level.needRestart:
+            rooms_count = ROOMS_COUNT
+            level = Level(rooms_count, screen)
         level.update(events)
         update_data()
         interface.update()

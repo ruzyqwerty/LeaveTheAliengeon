@@ -32,6 +32,7 @@ class Level:
         self.score = 0
 
         self.isLevelEnd = False
+        self.needRestart = False
 
         self.load_level(count)
 
@@ -169,6 +170,7 @@ class Level:
                 if not self.wall_sprites.has(self.non_active_sprites):
                     self.wall_sprites.add(self.non_active_sprites)
                 self.is_fight = True
+                self.player.rect.x += BLOCK_SIZE
             if self.last_room != 0 and len(self.rooms[self.last_room].enemies_sprites) <= 0:
                 self.all_state_sprites.remove(self.non_active_sprites)
                 self.wall_sprites.remove(self.non_active_sprites)
@@ -190,20 +192,6 @@ class Level:
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
         pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
-        # for enemy in self.enemies_sprites:
-        #         #     if not self.all_sprites.has(enemy.gun.bullet_sprites):
-        #         #         self.all_sprites.remove(enemy.gun.bullet_sprites)
-        #         #         self.all_sprites.add(enemy.gun.bullet_sprites)
-        #         #         self.bullet_sprites.remove(enemy.gun.bullet_sprites)
-        #         #         self.bullet_sprites.add(enemy.gun.bullet_sprites)
-        #         #     pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
-        #
-        # for enemy in self.enemies_sprites:
-        #     if not self.all_sprites.has(enemy.punch_sprites):
-        #         self.all_sprites.remove(enemy.punch_sprites)
-        #         self.all_sprites.add(enemy.punch_sprites)
-        #         self.punch_sprites.remove(enemy.punch_sprites)
-        #         self.punch_sprites.add(enemy.punch_sprites)
 
     def check_score(self):
         if self.score != self.player.score:
@@ -223,19 +211,20 @@ class Level:
                 self.player.health += value
             bonus.kill()
 
+    def check_player(self):
+        if self.player.health <= 0:
+            self.needRestart = True
 
     def update(self, events):
         self.center_camera()
         self.update_rooms()
         self.check_portal()
         self.check_bonus()
+        self.check_player()
         # TODO NEED FIX!!!
-        # self.enemies_sprites.update(self.bullet_sprites, self.last_room)
         for enemy in self.enemies_sprites:
             enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
-            # enemy.attack()
-        for punch in self.punch_sprites:
-            punch.update()
+        self.punch_sprites.update()
         self.player.update(events, walls=self.wall_sprites)
         self.check_new_bullets()
         self.check_score()
@@ -318,7 +307,6 @@ class Room:
                 if shooting:
                     enemy = EnemyGunner(col, row, offset=self.offset, room_number=self.number,
                                         groups=self.enemies_sprites)
-                    pass
                 else:
                     enemy = EnemyMelee(col, row, offset=self.offset, room_number=self.number,
                                        groups=self.enemies_sprites)
