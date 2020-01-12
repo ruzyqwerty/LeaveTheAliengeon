@@ -30,6 +30,7 @@ all_sprites.add(cursor)
 
 rooms_count = ROOMS_COUNT
 last_fullscreen = FULLSCREEN
+MAX_WIN_SIZE = pygame.display.Info().current_w, pygame.display.Info().current_h
 
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
@@ -60,6 +61,7 @@ while running:
         if menu.settings.fullscreen != last_fullscreen:
             last_fullscreen = menu.settings.fullscreen
             if menu.settings.fullscreen:
+                screen = pygame.display.set_mode(MAX_WIN_SIZE)
                 screen = pygame.display.set_mode(flags=pygame.FULLSCREEN | pygame.RESIZABLE)
             else:
                 screen = pygame.display.set_mode(WINDOW_SIZE)

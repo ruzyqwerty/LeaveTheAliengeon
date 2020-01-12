@@ -48,7 +48,8 @@ class Menu:
                     elif self.btn_exit.rect.collidepoint(x, y):
                         self.events.append('exit')
         else:
-            self.settings.update(events)
+            if self.settings.update(events):
+                self.settings_on = False
 
 
 class Settings:
@@ -58,6 +59,7 @@ class Settings:
         self.buttons_sprites = pygame.sprite.Group()
 
         self.btn_settings_fullscreen = Button(self.buttons_sprites, name='Fullscreen - On')
+        self.btn_back = Button(self.buttons_sprites, name='Back')
         self.fullscreen = FULLSCREEN
 
         if self.fullscreen:
@@ -76,6 +78,9 @@ class Settings:
                         self.btn_settings_fullscreen.change_name('Fullscreen - On')
                     else:
                         self.btn_settings_fullscreen.change_name('Fullscreen - Off')
+                elif self.btn_back.rect.collidepoint(x, y):
+                    return True
+        return False
 
 
 class Button(pygame.sprite.Sprite):
@@ -86,7 +91,7 @@ class Button(pygame.sprite.Sprite):
         self.change_name(name)
 
     def create(self):
-        width, height = 1200, 300
+        width, height = 1200, 250
         screen = pygame.Surface((width, height))
         screen.fill((255, 255, 255))
         font = pygame.font.Font(None, 210)
@@ -106,20 +111,20 @@ class Button(pygame.sprite.Sprite):
 
         self.rect.x += (screen_width // 2 - self.rect.width // 2)
         if self.text.lower() == 'continue':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height * 2
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height * 1.5
         elif self.text.lower() == 'play' or self.text.lower() == 'new game' or self.text.lower().startswith('fullscreen'):
-            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) - self.rect.height * 0.5
         elif self.text.lower() == 'settings':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2)
-        elif self.text.lower() == 'exit':
-            self.rect.y += (screen_height // 2 - self.rect.height // 2) + self.rect.height
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) + self.rect.height - self.rect.height * 0.5
+        elif self.text.lower() == 'exit' or self.text.lower() == 'back':
+            self.rect.y += (screen_height // 2 - self.rect.height // 2) + self.rect.height * 2 - self.rect.height * 0.5
 
     def change_name(self, name):
         if name != self.text:
             self.text = name
             self.image = self.create()
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        self.image = pygame.transform.scale(self.image, (int(screen_width * 0.75), int(screen_height * 0.3)))
+        self.image = pygame.transform.scale(self.image, (int(screen_width * 0.75), int(screen_height * 0.25)))
         self.rect = self.image.get_rect()
 
         self.correct_buttons()
