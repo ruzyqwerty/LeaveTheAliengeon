@@ -63,7 +63,7 @@ while running:
             on_pause = False
         if 'new game' in menu.events:
             menu.events.remove('new game')
-            level = Level(5, screen)
+            level = Level(ROOMS_COUNT, screen)
             on_pause = False
         menu.render()
     else:
