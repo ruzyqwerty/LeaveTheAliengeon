@@ -169,6 +169,7 @@ class Level:
                 if not self.wall_sprites.has(self.non_active_sprites):
                     self.wall_sprites.add(self.non_active_sprites)
                 self.is_fight = True
+                self.player.rect.x += BLOCK_SIZE
             if self.last_room != 0 and len(self.rooms[self.last_room].enemies_sprites) <= 0:
                 self.all_state_sprites.remove(self.non_active_sprites)
                 self.wall_sprites.remove(self.non_active_sprites)
@@ -190,20 +191,6 @@ class Level:
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
         pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
-        # for enemy in self.enemies_sprites:
-        #         #     if not self.all_sprites.has(enemy.gun.bullet_sprites):
-        #         #         self.all_sprites.remove(enemy.gun.bullet_sprites)
-        #         #         self.all_sprites.add(enemy.gun.bullet_sprites)
-        #         #         self.bullet_sprites.remove(enemy.gun.bullet_sprites)
-        #         #         self.bullet_sprites.add(enemy.gun.bullet_sprites)
-        #         #     pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
-        #
-        # for enemy in self.enemies_sprites:
-        #     if not self.all_sprites.has(enemy.punch_sprites):
-        #         self.all_sprites.remove(enemy.punch_sprites)
-        #         self.all_sprites.add(enemy.punch_sprites)
-        #         self.punch_sprites.remove(enemy.punch_sprites)
-        #         self.punch_sprites.add(enemy.punch_sprites)
 
     def check_score(self):
         if self.score != self.player.score:
@@ -318,7 +305,6 @@ class Room:
                 if shooting:
                     enemy = EnemyGunner(col, row, offset=self.offset, room_number=self.number,
                                         groups=self.enemies_sprites)
-                    pass
                 else:
                     enemy = EnemyMelee(col, row, offset=self.offset, room_number=self.number,
                                        groups=self.enemies_sprites)
