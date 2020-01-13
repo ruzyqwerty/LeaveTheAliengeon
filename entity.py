@@ -170,16 +170,19 @@ class EnemyMelee(Body):
                 self.speed_x = round(kx / self.c * self.normal_speed)
                 self.speed_y = round(ky / self.c * self.normal_speed)
             if self.speed_x > 0:
-                self.image = self.image_right
+                self.flip_image()
             elif self.speed_x < 0:
-                self.image = self.image_left
+                self.flip_image()
             else:
                 if kx < 0:
-                    self.image = self.image_left
+                    self.flip_image()
                 elif kx > 0:
-                    self.image = self.image_right
+                    self.flip_image()
             self.rect.x += self.speed_x
             self.rect.y += self.speed_y
+
+    def flip_image(self):
+        self.image = pygame.transform.flip(self.image, True, False)
 
     def update(self, *args, walls=None):
         bullets = None
@@ -189,7 +192,7 @@ class EnemyMelee(Body):
         if room == self.room_number:
             if self.play_hit:
                 self.timer += 1
-                if self.timer >= 30:
+                if self.timer >= 40:
                     self.play_hit = False
                     self.timer = 0
                     self.image = self.standart_image
@@ -254,8 +257,6 @@ class EnemyGunner(Body):
         self.images = ENEMY_GUNNER
         super().__init__(self.images, x=x, y=y, offset=offset, groups=groups)
         self.type = 'gunner'
-        self.image_left = pygame.transform.flip(self.images[0], True, False)
-        self.image_right = self.images[0]
         self.standart_image = self.images[0]
         self.hitted_image = self.images[1]
         self.room_number = room_number
@@ -275,6 +276,9 @@ class EnemyGunner(Body):
         self.time_attack = 0
         self.hit = False
         self.action = None
+
+    def flip_image(self):
+        self.image = pygame.transform.flip(self.image, True, False)
 
     def attack(self):
         if self.player:
@@ -298,21 +302,21 @@ class EnemyGunner(Body):
                 self.speed_x = 0
                 self.speed_y = 0
         if self.speed_x > 0:
-            self.image = self.image_right
+            self.flip_image()
         elif self.speed_x < 0:
-            self.image = self.image_left
+            self.flip_image()
         else:
             if kx < 0:
-                self.image = self.image_left
+                self.flip_image()
             elif kx > 0:
-                self.image = self.image_right
+                self.flip_image()
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
 
     def update(self, *args, walls=None):
         if self.play_hit:
             self.timer += 1
-            if self.timer >= 20:
+            if self.timer >= 40:
                 self.play_hit = False
                 self.timer = 0
                 self.image = self.standart_image
