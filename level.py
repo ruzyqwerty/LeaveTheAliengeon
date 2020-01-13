@@ -313,7 +313,9 @@ class Room:
 
     def generate_enemies(self, difficult_level):
         busy = set()
-        count = randint(2, 5)
+        min_count = difficult_level
+        max_count = difficult_level * 5 // 2
+        count = randint(min_count, max_count)
         for _ in range(count):
             col, row = randint(1 + 2, self.width - 2 - 2), randint(1 + 2, self.height - 2 - 2)
             if (col, row) not in busy:

@@ -130,6 +130,7 @@ class EnemyMelee(Body):
         self.player = None
 
         self.health = 50
+        self.standart_health = self.health
         self.damage = 15
 
         # mask (hitbox) of player sprite
@@ -241,7 +242,7 @@ class EnemyMelee(Body):
                 self.punch.kill()
                 self.player.health -= self.damage
             if self.health <= 0:
-                self.player.score += abs(self.health * self.damage) // 50
+                self.player.score += abs(self.standart_health * self.damage) // 50
                 self.kill()
 
     def render(self, surface):
@@ -280,6 +281,7 @@ class EnemyGunner(Body):
         self.action = None
 
         self.health = 60
+        self.standart_health = self.health
         self.damage = 30
 
         self.gun = Gun(x, y, BLOCK_SIZE, carrier=self)
@@ -368,7 +370,7 @@ class EnemyGunner(Body):
                 self.attack()
                 self.time_attack = 0
         if self.health <= 0:
-            self.player.score += abs(self.health * self.damage) // 50
+            self.player.score += abs(self.standart_health * self.damage) // 50
             self.kill()
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
