@@ -6,10 +6,11 @@ from settings import BLOCK_SIZE
 
 
 class Level:
-    def __init__(self, count, surface, player=None):
+    def __init__(self, count, surface, difficult_level, player=None):
         self.width = 0
         self.height = 0
         self.player = player
+        self.difficult_level = difficult_level
         self.all_sprites = pygame.sprite.Group()
         self.all_state_sprites = pygame.sprite.Group()
         self.drawing_sprites_layer_1 = pygame.sprite.Group()
@@ -45,7 +46,7 @@ class Level:
             rando = randint(1, 10)
             if rando % 2 == 0:
                 passage = self.load_bonus_room(width, height)
-            width, height = self.load_room('room_fight.txt', passage, number=i + 1)
+            width, height = self.load_room('room_fight.txt', passage=passage, number=i + 1)
             self.load_horizontal_corridor(width, height)
         self.load_room('room_portal.txt', number=count)
 
@@ -58,7 +59,7 @@ class Level:
             offset = self.load_vertical_corridor(width, height, 1)
             offset_y -= offset
             offset_y -= height * BLOCK_SIZE
-            room = Room('room_bonus.txt', (offset_x, offset_y), 2)
+            room = Room('room_bonus.txt', (offset_x, offset_y), passage=2)
             width, height = room.width, room.height
             self.load_bonus(bonus, width // 2, height // 2, (offset_x, offset_y))
             self.all_state_sprites.add(room.room_sprites)
@@ -69,7 +70,7 @@ class Level:
             offset = self.load_vertical_corridor(width, height, 2)
             offset_y += offset
             offset_y += height * BLOCK_SIZE
-            room = Room('room_bonus.txt', (offset_x, offset_y), 1)
+            room = Room('room_bonus.txt', (offset_x, offset_y), passage=1)
             width, height = room.width, room.height
             self.load_bonus(bonus, width // 2, height // 2, (offset_x, offset_y))
             self.all_state_sprites.add(room.room_sprites)
@@ -86,7 +87,7 @@ class Level:
                  y=y, offset=offset)
 
     def load_room(self, name, passage=None, number=0):
-        room = Room(name, self.offset, passage, number=number)
+        room = Room(name, self.offset, self.difficult_level, passage=passage, number=number)
         self.all_sprites.add(room.room_sprites, room.block_walls)
         self.wall_sprites.add(room.wall_sprites)
         self.all_state_sprites.add(room.room_sprites)
@@ -235,7 +236,7 @@ class Level:
             enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
         for enemy_bullet in self.enemy_bullet_sprites:
             if pygame.sprite.spritecollideany(self.player, self.enemy_bullet_sprites):
-                self.player.health -= 10
+                self.player.health -= enemy_bullet.damage
                 enemy_bullet.kill()
         self.punch_sprites.update()
         self.player.update(events, walls=self.wall_sprites)
@@ -246,7 +247,7 @@ class Level:
 
 
 class Room:
-    def __init__(self, name, offset, passage=None, number=0):
+    def __init__(self, name, offset, difficult_level=0, passage=None, number=0):
         self.class_name = name
         self.number = number
         if name.startswith('corridor'):
@@ -263,7 +264,7 @@ class Room:
         self.teleport = None
         self.width, self.height = self.load_room(name, passage)
         if 'fight' in name:
-            self.generate_enemies()
+            self.generate_enemies(difficult_level)
 
     def load_room(self, name, passage=None):
         name = 'Rooms/' + name
@@ -310,9 +311,11 @@ class Room:
                     self.room_sprites.add(obj)
         return width, height
 
-    def generate_enemies(self):
+    def generate_enemies(self, difficult_level):
         busy = set()
-        count = randint(2, 5)
+        min_count = difficult_level
+        max_count = difficult_level * 5 // 2
+        count = randint(min_count, max_count)
         for _ in range(count):
             col, row = randint(1 + 2, self.width - 2 - 2), randint(1 + 2, self.height - 2 - 2)
             if (col, row) not in busy:
@@ -324,3 +327,5 @@ class Room:
                 else:
                     enemy = EnemyMelee(col, row, offset=self.offset, room_number=self.number,
                                        groups=self.enemies_sprites)
+                if enemy:
+                    enemy.damage *= (1 + 0.1 * (difficult_level - 1))

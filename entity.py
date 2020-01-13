@@ -23,10 +23,8 @@ class Body(pygame.sprite.Sprite):
         # mask (hit box) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
 
-        if texture == PLAYER or texture == ENEMY_WARRIOR:
-            self.health = 100
-        elif texture == ENEMY_GUNNER:
-            self.health = 60
+        self.health = 0
+        self.damage = 0
 
     def check_collision(self, walls):
         left_collision = pygame.Rect(self.rect.x, self.rect.y + self.rect.height // 4,
@@ -58,11 +56,13 @@ class Body(pygame.sprite.Sprite):
 class Player(Body):
     def __init__(self, x, y, offset=(0, 0)):
         super().__init__(PLAYER, x=x, y=y, offset=offset)
-        self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, player=self)
         self.bullet_sprites = pygame.sprite.Group()
         self.normal_speed = PLAYER_SPEED * BLOCK_SIZE / 10
         self.score = 0
         self.action = None
+        self.health = 100
+        self.damage = 30
+        self.gun = Gun(x, y, BLOCK_SIZE, offset=offset, carrier=self)
 
     def control_player(self):
         keys = pygame.key.get_pressed()
@@ -128,6 +128,10 @@ class EnemyMelee(Body):
         self.hitted_image = self.images[1]
         self.room_number = room_number
         self.player = None
+
+        self.health = 50
+        self.standart_health = self.health
+        self.damage = 15
 
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
@@ -229,16 +233,16 @@ class EnemyMelee(Body):
                     self.image = self.hitted_image
                     self.play_hit = True
                     self.timer = 0
-                    self.health -= 20
+                    self.health -= self.player.damage
                     # TODO Sound of hit
             if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 1.5) and \
                     (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 1.5):
                 self.play_attack = True
             if self.hit and pygame.sprite.collide_mask(self.punch, self.player):
                 self.punch.kill()
-                self.player.health -= 10
+                self.player.health -= self.damage
             if self.health <= 0:
-                self.player.score += 10
+                self.player.score += abs(self.standart_health * self.damage) // 50
                 self.kill()
 
     def render(self, surface):
@@ -262,7 +266,6 @@ class EnemyGunner(Body):
         self.room_number = room_number
         self.player = None
         self.images = ENEMY_GUNNER
-        self.gun = Gun(x, y, BLOCK_SIZE, player=self)
         # mask (hitbox) of player sprite
         self.mask = pygame.mask.from_surface(self.image)
         self.normal_speed = ENEMY_SPEED * BLOCK_SIZE / 10
@@ -276,6 +279,12 @@ class EnemyGunner(Body):
         self.time_attack = 0
         self.hit = False
         self.action = None
+
+        self.health = 60
+        self.standart_health = self.health
+        self.damage = 30
+
+        self.gun = Gun(x, y, BLOCK_SIZE, carrier=self)
 
     def flip_image(self):
         self.image = pygame.transform.flip(self.image, True, False)
@@ -352,7 +361,7 @@ class EnemyGunner(Body):
                     self.image = self.hitted_image
                     self.play_hit = True
                     self.timer = 0
-                    self.health -= 20
+                    self.health -= self.player.damage
                     # TODO Sound of hit
             self.time_attack += 1
             if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 10) and \
@@ -361,7 +370,7 @@ class EnemyGunner(Body):
                 self.attack()
                 self.time_attack = 0
         if self.health <= 0:
-            self.player.score += 10
+            self.player.score += abs(self.standart_health * self.damage) // 50
             self.kill()
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
@@ -370,10 +379,10 @@ class EnemyGunner(Body):
 
 
 class Gun:
-    def __init__(self, x, y, width, height=0, offset=(0, 0), player=None):
+    def __init__(self, x, y, width, height=0, offset=(0, 0), carrier=None):
         if height == 0:
             height = width
-        self.player = player
+        self.carrier = carrier
         self.images = GUN
         self.image = self.images[0]
         self.image_left = pygame.transform.flip(self.images[0], True, False)
@@ -384,13 +393,13 @@ class Gun:
         self.w_h = width, height
         self.bullet_sprites = pygame.sprite.Group()
         self.max_range = 750
-        self.damage = 30
+        self.damage = carrier.damage
         self.standart_ammo = 15
         self.ammo = self.standart_ammo
         self.reload_time = 2000
 
     def reload(self):
-        if self.player.images == ENEMY_GUNNER:
+        if self.carrier.images == ENEMY_GUNNER:
             pass
         self.ammo = self.standart_ammo
 
@@ -398,11 +407,11 @@ class Gun:
         x, y = self.rect[:2]
         if self.ammo > 0:
             self.ammo -= 1
-            Bullet(x, y, BLOCK_SIZE,
+            Bullet(x, y, BLOCK_SIZE, self.damage,
                    mouse_pos=mouse_position,
-                   group=self.bullet_sprites, player=self.player,
-                   max_range=self.max_range, damage=self.damage)
-        elif self.player.images == ENEMY_GUNNER:
+                   group=self.bullet_sprites, player=self.carrier,
+                   max_range=self.max_range)
+        elif self.carrier.images == ENEMY_GUNNER:
             self.reload()
 
     def update(self, player_x, player_y, right=True):
@@ -415,6 +424,7 @@ class Gun:
         else:
             self.image = self.image_left
             self.rect.x -= 3 * self.w_h[0] / 10
+        self.damage = self.carrier.damage
 
     def render(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
@@ -422,10 +432,10 @@ class Gun:
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height=0,
+    def __init__(self, x, y, width, damage, height=0,
                  mouse_pos=(0, 0),
                  group=None, player=None,
-                 max_range=None, damage=0):
+                 max_range=None):
         super().__init__(group)
         if height == 0:
             height = width

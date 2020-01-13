@@ -34,7 +34,8 @@ MAX_WIN_SIZE = pygame.display.Info().current_w, pygame.display.Info().current_h
 
 screen.fill((255, 255, 255))
 clock = pygame.time.Clock()
-level = Level(rooms_count, screen)
+difficult_level = 1
+level = Level(rooms_count, screen, difficult_level)
 
 on_pause = False
 start_menu = True
@@ -83,7 +84,8 @@ while running:
         if 'new game' in menu.events:
             menu.events.remove('new game')
             rooms_count = ROOMS_COUNT
-            level = Level(rooms_count, screen)
+            difficult_level = 1
+            level = Level(rooms_count, screen, difficult_level)
             on_pause = False
         menu.render()
     else:
@@ -91,11 +93,13 @@ while running:
             player = level.player
             room_done = level.room_done
             rooms_count += 1
-            level = Level(rooms_count, screen, player)
+            difficult_level += 1
+            level = Level(rooms_count, screen, difficult_level, player=player)
             level.room_done = room_done
         if level.needRestart:
             rooms_count = ROOMS_COUNT
-            level = Level(rooms_count, screen)
+            difficult_level = 1
+            level = Level(rooms_count, screen, difficult_level)
         level.update(events)
         update_data()
         interface.update()
