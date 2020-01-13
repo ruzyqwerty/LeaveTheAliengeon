@@ -233,7 +233,7 @@ class EnemyMelee(Body):
                     self.image = self.hitted_image
                     self.play_hit = True
                     self.timer = 0
-                    self.health -= 20
+                    self.health -= self.player.damage
                     # TODO Sound of hit
             if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 1.5) and \
                     (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 1.5):
@@ -361,7 +361,7 @@ class EnemyGunner(Body):
                     self.image = self.hitted_image
                     self.play_hit = True
                     self.timer = 0
-                    self.health -= 20
+                    self.health -= self.player.damage
                     # TODO Sound of hit
             self.time_attack += 1
             if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 10) and \
