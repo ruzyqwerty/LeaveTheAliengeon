@@ -2,6 +2,9 @@ import pygame
 from texture import LEVEL_OBJECTS, BONUSES
 from settings import BLOCK_SIZE
 
+COIN_UP_SOUND = pygame.mixer.Sound('coin_up.ogg')
+HEART_UP_SOUND = pygame.mixer.Sound('heart_up.ogg')
+
 
 class Object(pygame.sprite.Sprite):
     def __init__(self, groups, name, x, y, width, height=0, offset=(0, 0), colorkey=None):
@@ -32,7 +35,8 @@ class Coin(Bonus):
         super().__init__(groups, name='coin', x=x, y=y, offset=offset)
 
     def pick_up(self):
-        return ('score', 70)
+        COIN_UP_SOUND.play()
+        return 'score', 70
 
 
 class Heart(Bonus):
@@ -40,4 +44,5 @@ class Heart(Bonus):
         super().__init__(groups, name='heart', x=x, y=y, offset=offset)
 
     def pick_up(self):
-        return ('hp', 50)
+        HEART_UP_SOUND.play()
+        return 'hp', 50

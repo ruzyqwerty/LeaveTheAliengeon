@@ -4,6 +4,10 @@ from entity import Player, EnemyMelee, EnemyGunner
 from random import randint, choice
 from settings import BLOCK_SIZE
 
+PLAYER_DEATH_SOUND = pygame.mixer.Sound('player_death.ogg')
+PLAYER_HITTED_SOUND = pygame.mixer.Sound('player_hitted.ogg')
+TELEPORTATION_SOUND = pygame.mixer.Sound('teleportation.ogg')
+
 
 class Level:
     def __init__(self, count, surface, difficult_level, player=None):
@@ -209,6 +213,7 @@ class Level:
 
     def check_portal(self):
         if pygame.sprite.collide_rect(self.player, self.teleport):
+            TELEPORTATION_SOUND.play()
             self.isLevelEnd = True
 
     def check_bonus(self):
@@ -223,6 +228,7 @@ class Level:
 
     def check_player(self):
         if self.player.health <= 0:
+            PLAYER_DEATH_SOUND.play()
             self.needRestart = True
 
     def update(self, events):
@@ -236,6 +242,7 @@ class Level:
             enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
         for enemy_bullet in self.enemy_bullet_sprites:
             if pygame.sprite.spritecollideany(self.player, self.enemy_bullet_sprites):
+                PLAYER_HITTED_SOUND.play()
                 self.player.health -= enemy_bullet.damage
                 enemy_bullet.kill()
         self.punch_sprites.update()

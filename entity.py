@@ -4,6 +4,11 @@ from settings import BLOCK_SIZE, PLAYER_SPEED, ENEMY_SPEED, BULLET_SPEED
 from events import RELOAD_EVENT
 from random import randint
 
+PIY_SOUND = pygame.mixer.Sound('laser.ogg')
+BAM_SOUND = pygame.mixer.Sound('bam.ogg')
+PLAYER_HITTED_SOUND = pygame.mixer.Sound('player_hitted.ogg')
+ENEMY_DEATH_SOUND = pygame.mixer.Sound('enemy_death.ogg')
+
 
 class Body(pygame.sprite.Sprite):
     def __init__(self, texture, x=None, y=None, offset=(0, 0), groups=None):
@@ -101,8 +106,9 @@ class Player(Body):
             self.gun.reload()
         if pygame.MOUSEBUTTONDOWN in types:
             if events[types.index(pygame.MOUSEBUTTONDOWN)].button == pygame.BUTTON_LEFT:
-                if not self.action:
+                if not self.action and self.gun.ammo > 0:
                     self.gun.fire(events[types.index(pygame.MOUSEBUTTONDOWN)].pos)
+                    PIY_SOUND.play()
         if walls:
             self.check_collision(walls)
         self.rect.x += self.speed[0]
@@ -129,7 +135,7 @@ class EnemyMelee(Body):
         self.room_number = room_number
         self.player = None
 
-        self.health = 50
+        self.health = 100
         self.standart_health = self.health
         self.damage = 15
 
@@ -239,15 +245,18 @@ class EnemyMelee(Body):
                     (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 1.5):
                 self.play_attack = True
             if self.hit and pygame.sprite.collide_mask(self.punch, self.player):
+                PLAYER_HITTED_SOUND.play()
                 self.punch.kill()
                 self.player.health -= self.damage
             if self.health <= 0:
+                ENEMY_DEATH_SOUND.play()
                 self.player.score += abs(self.standart_health * self.damage) // 50
                 self.kill()
 
     def render(self, surface):
         if self.hit:
             surface.blit(self.punch.image, (self.punch.rect.x, self.punch.rect.y))
+            BAM_SOUND.play()
             self.timer += 1
             if self.timer == 1:
                 self.hit = False
@@ -292,6 +301,7 @@ class EnemyGunner(Body):
     def attack(self):
         if self.player:
             self.gun.fire(self.player.rect[:2])
+            PIY_SOUND.play()
         self.hit = True
 
     def move(self):
@@ -370,6 +380,7 @@ class EnemyGunner(Body):
                 self.attack()
                 self.time_attack = 0
         if self.health <= 0:
+            ENEMY_DEATH_SOUND.play()
             self.player.score += abs(self.standart_health * self.damage) // 50
             self.kill()
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
