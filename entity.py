@@ -200,6 +200,9 @@ class EnemyMelee(Body):
                     self.time_attack = 0
                     self.attack()
             group = self.groups()[0].copy()
+            for sprite in group:
+                if type(sprite) is not EnemyMelee:
+                    group.remove(sprite)
             group.remove(self)
             if walls:
                 s = self.speed
@@ -319,6 +322,9 @@ class EnemyGunner(Body):
             bullets, room = args
         if room == self.room_number:
             group = self.groups()[0].copy()
+            for sprite in group:
+                if type(sprite) is not EnemyGunner:
+                    group.remove(sprite)
             group.remove(self)
             if walls:
                 s = self.speed
