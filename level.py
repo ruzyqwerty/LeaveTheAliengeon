@@ -322,11 +322,8 @@ class Room:
                 if shooting:
                     enemy = EnemyGunner(col, row, offset=self.offset, room_number=self.number,
                                         groups=self.enemies_sprites)
-                    print('ranger:')
                 else:
                     enemy = EnemyMelee(col, row, offset=self.offset, room_number=self.number,
                                        groups=self.enemies_sprites)
-                    print('melee:')
                 if enemy:
                     enemy.damage *= (1 + 0.1 * (difficult_level - 1))
-                    print('damage:', enemy.damage)
