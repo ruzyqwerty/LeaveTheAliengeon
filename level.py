@@ -16,6 +16,7 @@ class Level:
         self.drawing_sprites_layer_2 = pygame.sprite.Group()
         self.all_dynamic_sprites = pygame.sprite.Group()
         self.bullet_sprites = pygame.sprite.Group()
+        self.enemy_bullet_sprites = pygame.sprite.Group()
         self.punch_sprites = pygame.sprite.Group()
         self.wall_sprites = pygame.sprite.Group()
         self.enemies_sprites = pygame.sprite.Group()
@@ -192,6 +193,14 @@ class Level:
             self.bullet_sprites.remove(self.player.gun.bullet_sprites)
             self.bullet_sprites.add(self.player.gun.bullet_sprites)
         pygame.sprite.groupcollide(self.wall_sprites, self.bullet_sprites, False, True)
+        for enemy in self.enemies_sprites:
+            if enemy.type == 'gunner':
+                if not self.all_sprites.has(enemy.gun.bullet_sprites):
+                    self.all_sprites.remove(enemy.gun.bullet_sprites)
+                    self.all_sprites.add(enemy.gun.bullet_sprites)
+                    self.enemy_bullet_sprites.remove(enemy.gun.bullet_sprites)
+                    self.enemy_bullet_sprites.add(enemy.gun.bullet_sprites)
+        pygame.sprite.groupcollide(self.wall_sprites, self.enemy_bullet_sprites, False, True)
 
     def check_score(self):
         if self.score != self.player.score:
@@ -224,11 +233,16 @@ class Level:
         # TODO NEED FIX!!!
         for enemy in self.enemies_sprites:
             enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
+        for enemy_bullet in self.enemy_bullet_sprites:
+            if pygame.sprite.spritecollideany(self.player, self.enemy_bullet_sprites):
+                self.player.health -= 10
+                enemy_bullet.kill()
         self.punch_sprites.update()
         self.player.update(events, walls=self.wall_sprites)
         self.check_new_bullets()
         self.check_score()
         self.all_sprites.update()
+        self.enemy_bullet_sprites.update()
 
 
 class Room:
