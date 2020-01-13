@@ -433,7 +433,7 @@ class Bullet(pygame.sprite.Sprite):
         self.damage = damage
 
         if self.player.type == 'gunner':
-            self.speed = BULLET_SPEED * width / 25
+            self.speed = BULLET_SPEED * width / 35
         else:
             self.speed = BULLET_SPEED * width / 10
         if self.player.images == PLAYER:
