@@ -241,7 +241,7 @@ class EnemyMelee(Body):
                 self.punch.kill()
                 self.player.health -= self.damage
             if self.health <= 0:
-                self.player.score += (self.health * self.damage) // 50
+                self.player.score += abs(self.health * self.damage) // 50
                 self.kill()
 
     def render(self, surface):
@@ -368,7 +368,7 @@ class EnemyGunner(Body):
                 self.attack()
                 self.time_attack = 0
         if self.health <= 0:
-            self.player.score += 10
+            self.player.score += abs(self.health * self.damage) // 50
             self.kill()
         self.gun.update(self.rect.x, self.rect.y, self.image == self.image_right)
 
@@ -380,7 +380,7 @@ class Gun:
     def __init__(self, x, y, width, height=0, offset=(0, 0), carrier=None):
         if height == 0:
             height = width
-        self.player = carrier
+        self.carrier = carrier
         self.images = GUN
         self.image = self.images[0]
         self.image_left = pygame.transform.flip(self.images[0], True, False)
@@ -397,7 +397,7 @@ class Gun:
         self.reload_time = 2000
 
     def reload(self):
-        if self.player.images == ENEMY_GUNNER:
+        if self.carrier.images == ENEMY_GUNNER:
             pass
         self.ammo = self.standart_ammo
 
@@ -407,9 +407,9 @@ class Gun:
             self.ammo -= 1
             Bullet(x, y, BLOCK_SIZE, self.damage,
                    mouse_pos=mouse_position,
-                   group=self.bullet_sprites, player=self.player,
+                   group=self.bullet_sprites, player=self.carrier,
                    max_range=self.max_range)
-        elif self.player.images == ENEMY_GUNNER:
+        elif self.carrier.images == ENEMY_GUNNER:
             self.reload()
 
     def update(self, player_x, player_y, right=True):
@@ -422,6 +422,7 @@ class Gun:
         else:
             self.image = self.image_left
             self.rect.x -= 3 * self.w_h[0] / 10
+        self.damage = self.carrier.damage
 
     def render(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
