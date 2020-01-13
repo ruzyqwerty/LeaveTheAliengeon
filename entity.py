@@ -344,15 +344,6 @@ class EnemyGunner(Body):
                     self.timer = 0
                     self.health -= 20
                     # TODO Sound of hit
-            # TODO NEED FIX!!!
-            # if self.gun.ammo == 0:
-            #     if not self.action and self.gun.ammo != self.gun.standart_ammo:
-            #         pygame.time.set_timer(RELOAD_EVENT, self.gun.reload_time)
-            #         self.action = RELOAD_EVENT
-            # if self.action:
-            #     pygame.time.set_timer(RELOAD_EVENT, 0)
-            #     self.action = None
-            #     self.gun.reload()
             self.time_attack += 1
             if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 10) and \
                     (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 10) and\
