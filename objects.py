@@ -1,9 +1,7 @@
 import pygame
 from texture import LEVEL_OBJECTS, BONUSES
 from settings import BLOCK_SIZE
-
-COIN_UP_SOUND = pygame.mixer.Sound('coin_up.ogg')
-HEART_UP_SOUND = pygame.mixer.Sound('heart_up.ogg')
+from audio import COIN_UP_SOUND, HEART_UP_SOUND
 
 
 class Object(pygame.sprite.Sprite):

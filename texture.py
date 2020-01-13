@@ -4,7 +4,7 @@ from settings import BLOCK_SIZE
 
 
 def load_image(name, colorkey=None, width=BLOCK_SIZE, height=BLOCK_SIZE):
-    name = 'Resources/' + name
+    name = 'Data/Resources/' + name
     image = pygame.image.load(name).convert()
 
     if colorkey is not None:

@@ -3,10 +3,7 @@ from objects import Object, Coin, Heart
 from entity import Player, EnemyMelee, EnemyGunner
 from random import randint, choice
 from settings import BLOCK_SIZE
-
-PLAYER_DEATH_SOUND = pygame.mixer.Sound('player_death.ogg')
-PLAYER_HITTED_SOUND = pygame.mixer.Sound('player_hitted.ogg')
-TELEPORTATION_SOUND = pygame.mixer.Sound('teleportation.ogg')
+from audio import PLAYER_DEATH_SOUND, PLAYER_HITTED_SOUND, TELEPORTATION_SOUND
 
 
 class Level:
@@ -274,7 +271,7 @@ class Room:
             self.generate_enemies(difficult_level)
 
     def load_room(self, name, passage=None):
-        name = 'Rooms/' + name
+        name = 'Data/Rooms/' + name
         with open(name, mode='r') as file:
             room_map = [line.strip() for line in file]
         width = len(room_map[0])

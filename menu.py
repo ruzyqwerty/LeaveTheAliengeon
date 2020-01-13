@@ -1,5 +1,6 @@
 import pygame
 from settings import FULLSCREEN
+from audio import CLICK_SOUND
 
 LABEL_WIDTH, LABEL_HEIGHT = 1200, 250
 LABEL_BACKGROUND = (255, 255, 255)
@@ -7,7 +8,6 @@ LABEL_FONT_SIZE = 210
 LABEL_FONT_COLOR = (255, 200, 0)
 LABEL_FRAME_COLOR = (255, 150, 150)
 LABEL_FRAME_WIDTH = 30
-CLICK_SOUND = pygame.mixer.Sound('click.wav')
 
 
 class Menu:

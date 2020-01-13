@@ -3,11 +3,7 @@ from texture import PLAYER, ENEMY_WARRIOR, ENEMY_GUNNER, GUN, BULLET_PLAYER, PUN
 from settings import BLOCK_SIZE, PLAYER_SPEED, ENEMY_SPEED, BULLET_SPEED
 from events import RELOAD_EVENT
 from random import randint
-
-PIY_SOUND = pygame.mixer.Sound('laser.ogg')
-BAM_SOUND = pygame.mixer.Sound('bam.ogg')
-PLAYER_HITTED_SOUND = pygame.mixer.Sound('player_hitted.ogg')
-ENEMY_DEATH_SOUND = pygame.mixer.Sound('enemy_death.ogg')
+from audio import PIY_SOUND, BAM_SOUND, PLAYER_HITTED_SOUND, ENEMY_DEATH_SOUND
 
 
 class Body(pygame.sprite.Sprite):
