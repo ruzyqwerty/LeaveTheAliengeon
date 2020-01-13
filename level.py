@@ -235,7 +235,7 @@ class Level:
             enemy.update(self.bullet_sprites, self.last_room, walls=self.wall_sprites)
         for enemy_bullet in self.enemy_bullet_sprites:
             if pygame.sprite.spritecollideany(self.player, self.enemy_bullet_sprites):
-                self.player.health -= 10
+                self.player.health -= enemy_bullet.damage
                 enemy_bullet.kill()
         self.punch_sprites.update()
         self.player.update(events, walls=self.wall_sprites)
