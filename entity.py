@@ -198,7 +198,7 @@ class EnemyMelee(Body):
         if room == self.room_number:
             if self.play_hit:
                 self.timer += 1
-                if self.timer >= 40:
+                if self.timer >= 20:
                     self.play_hit = False
                     self.timer = 0
                     self.image = self.standart_image
@@ -372,7 +372,7 @@ class EnemyGunner(Body):
             self.time_attack += 1
             if (abs(self.player.rect.x - self.rect.x)) <= (BLOCK_SIZE * 10) and \
                     (abs(self.player.rect.y - self.rect.y)) <= (BLOCK_SIZE * 10) and\
-                    not self.action and self.time_attack >= 25:
+                    not self.action and self.time_attack >= 15:
                 self.attack()
                 self.time_attack = 0
         if self.health <= 0:
