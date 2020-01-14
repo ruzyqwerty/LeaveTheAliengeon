@@ -96,6 +96,7 @@ while running:
             difficult_level += 1
             level = Level(rooms_count, screen, difficult_level, player=player)
             level.room_done = room_done
+            level.isLevelEnd = False
         if level.needRestart:
             rooms_count = ROOMS_COUNT
             difficult_level = 1

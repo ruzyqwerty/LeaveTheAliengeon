@@ -180,6 +180,7 @@ class Level:
                 self.is_fight = False
                 if self.room_done != self.last_room:
                     self.room_done += 1
+                    self.last_room = self.room_done
 
     def render(self):
         self.drawing_sprites_layer_1.draw(self.surface)
