@@ -198,13 +198,13 @@ class EnemyMelee(Body):
         if room == self.room_number:
             if self.play_hit:
                 self.timer += 1
-                if self.timer >= 20:
+                if self.timer >= 40:
                     self.play_hit = False
                     self.timer = 0
                     self.image = self.standart_image
             if self.play_attack:
                 self.time_attack += 1
-                if self.time_attack == 25:
+                if self.time_attack == 15:
                     self.play_attack = False
                     self.time_attack = 0
                     self.attack()
